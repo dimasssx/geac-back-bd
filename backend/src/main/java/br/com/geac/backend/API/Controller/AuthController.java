@@ -4,6 +4,7 @@ package br.com.geac.backend.API.Controller;
 import br.com.geac.backend.Aplication.DTOs.Reponse.RegisterResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.RegisterRequestDTO;
 import br.com.geac.backend.Aplication.Services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> registerUser(@RequestBody RegisterRequestDTO user) {
+    public ResponseEntity<RegisterResponseDTO> registerUser(@RequestBody @Valid RegisterRequestDTO user) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
     }

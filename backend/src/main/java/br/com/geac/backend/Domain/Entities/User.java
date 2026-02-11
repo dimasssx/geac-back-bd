@@ -1,6 +1,7 @@
 package br.com.geac.backend.Domain.Entities;
 
 
+import br.com.geac.backend.Domain.Enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ public class User implements UserDetails {
     @Column(name = "password_hash",nullable = false)
     private String password;
     @Column(name = "user_type",nullable = false)
-    private String role;
+    private Role role;
     @Column(updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
