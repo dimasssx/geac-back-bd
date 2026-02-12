@@ -24,6 +24,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
                     .anyRequest().authenticated())
+                .logout((logout) -> logout
+                    .logoutUrl("/auth/logout")
+                    .permitAll()
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(true))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .build();
     }

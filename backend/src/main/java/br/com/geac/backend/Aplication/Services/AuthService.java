@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+    
     public RegisterResponseDTO registerUser(RegisterRequestDTO request) {
 
         if(userRepository.existsByEmail(request.email())) {
@@ -27,5 +28,11 @@ public class AuthService {
         user.setPassword(encriptedPass);
 
         return UserMapper.INSTANCE.userToRegisterResponse(userRepository.save(user));
+    }
+    
+    public void logout() {
+        // Em uma aplicação com sessões stateless (JWT), o logout é feito principalmente no cliente
+        // removendo o token. Este método pode ser estendido para implementar blacklist de tokens
+        // ou outras operações de limpeza necessárias
     }
 }
