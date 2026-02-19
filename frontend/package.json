@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
+    "test": "vitest",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "test:playwright": "npx playwright test",
     "test:playwright-ui": "npx playwright test --ui"
   },
