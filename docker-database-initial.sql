@@ -42,6 +42,22 @@ CREATE TABLE tags
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE organizers
+(
+    id            SERIAL PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL UNIQUE,
+    contact_email VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE organizer_members
+(
+    id           SERIAL PRIMARY KEY,
+    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(organizer_id, user_id)
+);
+
 CREATE TABLE events
 (
     id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -71,6 +87,16 @@ CREATE TABLE event_tags
     PRIMARY KEY (event_id, tag_id)
 );
 
+CREATE TABLE organizer_requests (
+                                    id SERIAL PRIMARY KEY,
+                                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                                    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
+                                    justification TEXT,
+                                    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    resolved_at TIMESTAMP
+);
+
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
@@ -83,7 +109,8 @@ INSERT INTO public.users (id, full_name, email, password_hash, user_type, create
                                                                                           ('286c2d18-9814-4d88-a55d-14bacaefcf49', 'student5', 'student5@test.com', '$2a$10$kWOVCbnEdBKwoirx8IvxxuBC1r5TS8O8/ekLd1JkAKlVvW6rDLajy', 'STUDENT', NOW()),
                                                                                           ('073b9076-2317-4511-a9c3-535654e75363', 'professor1', 'professor1@test.com', '$2a$10$UAH/nCUUYJ6Cklr79GLUVuY91SBHZh.JmyP/Id6NdnTBvhG6m5Vma', 'PROFESSOR', NOW()),
                                                                                           ('be4999bf-6d31-4414-a0a6-ae61d53a6387', 'professor2', 'professor2@test.com', '$2a$10$MOljMoo4PYuoz4yzBJK8K.tW/2iBtWFcFUkZv8d5RuGfIMikJITDu', 'PROFESSOR', NOW()),
-                                                                                          ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com', '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW());
+                                                                                          ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com', '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW()),
+                                                                                          ('e6137fdc-6fc2-4776-8616-9e238c1b48a7', 'admin', 'admin@admin.com', '$2a$10$/h/iWZLAhU4PfZmTew1nl.6xfNP4ymHEu5zSWXGhGIsce41x7p146', 'ADMIN', NOW());
 
 
 INSERT INTO categories (name, description)
