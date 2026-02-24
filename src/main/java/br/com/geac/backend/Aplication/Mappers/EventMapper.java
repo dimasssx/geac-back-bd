@@ -1,11 +1,11 @@
 package br.com.geac.backend.Aplication.Mappers;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
+import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Domain.Entities.Event;
+import br.com.geac.backend.Domain.Entities.Speaker;
 import br.com.geac.backend.Domain.Entities.Tag;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.Set;
@@ -33,10 +33,17 @@ public interface EventMapperr {
     }
     @Named("mapSpeakers")
     default List<String> resolveSpeakers(Event event) {
-        return List.of("Palestrante 1", "Palestrante 2");
+        if (event.getSpeakers() == null) return List.of();
+        return event.getSpeakers().stream()
+                .map(Speaker::getName)
+                .toList();
     }
     default List<String> mapTags(Set<Tag> tags) {
         if (tags == null) return List.of();
         return tags.stream().map(Tag::getName).toList();
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEventFromDto(EventPatchRequestDTO dto, @MappingTarget Event entity);
+
 }
