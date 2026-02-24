@@ -87,6 +87,16 @@ CREATE TABLE event_tags
     PRIMARY KEY (event_id, tag_id)
 );
 
+CREATE TABLE organizer_requests (
+                                    id SERIAL PRIMARY KEY,
+                                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                                    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
+                                    justification TEXT,
+                                    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    resolved_at TIMESTAMP
+);
+
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
