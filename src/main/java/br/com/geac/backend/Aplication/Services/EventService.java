@@ -105,6 +105,11 @@ public class EventService {
 
     }
 
+    public void deleteEvent(UUID id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        eventRepository.delete(event);
+    }
     private Set<Tag> resolveTags(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return Set.of();
         return tagRepository.findAllByIdIn(ids);

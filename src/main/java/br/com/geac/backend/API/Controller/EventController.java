@@ -40,9 +40,16 @@ public class EventController {
     }
 
     @PatchMapping ("/{id}")
-    @PreAuthorize("hasRole('PROFESSOR') and hasRole('ADMIN')")
+    @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable UUID id, @RequestBody @Valid EventPatchRequestDTO dto) {
         EventResponseDTO updatedEvent = eventService.patchEvent(id, dto);
         return ResponseEntity.ok(updatedEvent);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
+        eventService.deleteEvent(id);
+        return ResponseEntity.noContent().build();
     }
 }
