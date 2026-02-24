@@ -143,16 +143,17 @@ VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
 
 
 INSERT INTO categories (name, description)
-VALUES ('hackathon', ''),
-       ('palestra', ''),
-       ('seminario', ''),
-       ('cultural', ''),
-       ('feira', ''),
-       ('workshop', ''),
-       ('livre', ''),
-       ('conferencia', ''),
-       ('festival', ''),
-       ('outro', '');
+VALUES
+    ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
+    ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
+    ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
+    ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
+    ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
+    ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
+    ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
+    ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
+    ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
+    ('outro', 'Categorias que não se enquadram nas definições anteriores.');
 
 INSERT INTO public.locations (name, street, number, neighborhood, city, state, zip_code, reference_point, capacity)
 VALUES ('Laboratório de Informática 01', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
