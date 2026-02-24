@@ -49,6 +49,7 @@ public interface EventMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "requirement", ignore = true)
+    @Mapping(target = "location", ignore = true)
     void updateEventFromDto(EventPatchRequestDTO dto, @MappingTarget Event entity);
 
 }

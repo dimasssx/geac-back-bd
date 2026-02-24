@@ -101,6 +101,10 @@ public class EventService {
             var category = categoryRepository.findById(dto.categoryId()).orElseThrow();
             event.setCategory(category);
         }
+        if (dto.locationId() != null) {
+            Location location = locationRepository.findById(dto.locationId()).orElseThrow();
+            event.setLocation(location);
+        }
         return eventMapper.toResponseDTO(eventRepository.save(event));
 
     }

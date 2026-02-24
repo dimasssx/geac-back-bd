@@ -26,6 +26,6 @@ public class Speaker {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @OneToMany(mappedBy = "speaker",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "speaker",fetch = FetchType.LAZY)
     private Set<Qualification> qualifications = new HashSet<>();
 }
