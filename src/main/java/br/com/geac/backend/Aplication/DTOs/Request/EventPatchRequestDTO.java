@@ -24,7 +24,7 @@ public record EventPatchRequestDTO(
 
         Integer categoryId,
         Integer requirementId,
-        Set<Integer> tags, //TODO: mesma coisa dos de cima, mas já ta implementado pros 2 casos
+        Set<Integer> tags,
         Integer locationId,
         Set<Integer> speakers
 ) {

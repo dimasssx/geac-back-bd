@@ -1,21 +1,24 @@
 package br.com.geac.backend.Aplication.Mappers;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.SpeakerResponseDTO;
-import br.com.geac.backend.Domain.Entities.Qualification;
+import br.com.geac.backend.Aplication.DTOs.Request.LocationPatchRequestDTO;
+import br.com.geac.backend.Aplication.DTOs.Request.SpeakerPatchRequestDTO;
+import br.com.geac.backend.Aplication.DTOs.Request.SpeakerRequestDTO;
+import br.com.geac.backend.Domain.Entities.Location;
 import br.com.geac.backend.Domain.Entities.Speaker;
-import org.mapstruct.Mapper;
+import org.mapstruct.*;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = QualificationMapper.class)
 public interface SpeakerMapper {
 
     SpeakerResponseDTO toDto(Speaker speaker);
-    default Set<String> mapQualifications(Set<Qualification> qualifications) {
-        if (qualifications == null) return Set.of();
-        return qualifications.stream()
-                .map(Qualification::getTitleName)
-                .collect(Collectors.toSet());
-    }
+
+    @Mapping(target = "qualifications", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Speaker toEntity(SpeakerRequestDTO requestDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "qualifications", ignore = true)
+    void updateEntityFromDTO(SpeakerPatchRequestDTO dto, @MappingTarget Speaker location);
+
 }

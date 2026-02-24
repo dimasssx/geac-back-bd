@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "speakers")
@@ -18,7 +17,7 @@ import java.util.UUID;
 public class Speaker {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
@@ -26,6 +25,28 @@ public class Speaker {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @OneToMany(mappedBy = "speaker",fetch = FetchType.LAZY)
+    private String email;
+
+    @OneToMany(mappedBy = "speaker", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Qualification> qualifications = new HashSet<>();
+
+    public void addQualification(Qualification qualification) {
+
+        qualifications.add(qualification);
+        qualification.setSpeaker(this);
+    }
+
+    public void removeQualification(Qualification qualification) {
+
+        qualifications.remove(qualification);
+        qualification.setSpeaker(null);
+    }
+
+    public void setQualifications(Set<Qualification> qualifications) {
+
+        this.qualifications.clear();
+        if (qualifications != null) {
+            qualifications.forEach(this::addQualification);
+        }
+    }
 }

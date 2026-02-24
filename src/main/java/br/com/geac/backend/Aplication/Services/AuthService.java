@@ -48,7 +48,7 @@ public class AuthService{
     
     public void logout() {
         // Em uma aplicação com sessões stateless (JWT), o logout é feito principalmente no cliente
-        // removendo o token. Este método pode ser estendido para implementar blacklist de tokens
+        // removendo o token. Este métod pode ser estendido para implementar blacklist de tokens
         // ou outras operações de limpeza necessárias
     }
 }

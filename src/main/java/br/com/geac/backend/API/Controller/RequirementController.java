@@ -35,7 +35,7 @@ public class RequirementController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<RequirementsResponseDTO> updateRequirement(@RequestBody RequirementRequestDTO dto, @PathVariable @Positive Integer id) {
         return ResponseEntity.ok(service.updateRequirement(id, dto));
     }

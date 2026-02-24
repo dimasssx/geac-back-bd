@@ -22,8 +22,8 @@ public class LocationService {
     @Transactional
     //TODO: constrain no banco para verificar unicidade
     public LocationResponseDTO createLocation(LocationRequestDTO dto) {
-        if (locationRepository.existsByZipCodeAndNumberAndName(dto.zipCode(), dto.number(), dto.name())) { //TODO: Se precisar colocar referencepoint tbm
-            throw new RuntimeException("Location with the same zip code,number and name already exists");
+        if (locationRepository.existsByZipCodeAndNumberAndName(dto.zipCode(), dto.number(), dto.name())) {
+            throw new RuntimeException("Location with the same zip code,number and name already exists"); // se precisar poe reference point tbm
         }
         var location = locationMapper.toEntity(dto);
         return locationMapper.toDto(locationRepository.save(location));
@@ -52,7 +52,7 @@ public class LocationService {
         String newNumber = dto.number() != null ? dto.number() : location.getNumber();
         String newName = dto.name() != null ? dto.name() : location.getName();
 
-        if (locationRepository.existsByZipCodeAndNumberAndNameAndIdNot(newZipCode, newNumber, newName, id)) { //TODO: Se precisar colocar referencepoint tbm
+        if (locationRepository.existsByZipCodeAndNumberAndNameAndIdNot(newZipCode, newNumber, newName, id)) { // Se precisar colocar referencepoint tbm
             throw new RuntimeException("Another location with the same zip code,number and name already exists");
         }
 

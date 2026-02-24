@@ -11,4 +11,10 @@ import java.util.Set;
 public interface SpeakerRepository extends JpaRepository<Speaker, Integer> {
 
     Set<Speaker> findAllByIdIn(Collection<Integer> ids);
+
+    boolean existsByNameAndBio(String name, String bio);
+
+    boolean existsByNameAndEmail(String name, String email);
+
+    boolean existsByNameAndEmailAndIdNot(String name, String email, Integer id);
 }
