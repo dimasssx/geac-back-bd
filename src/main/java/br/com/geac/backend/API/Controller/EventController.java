@@ -1,5 +1,6 @@
 package br.com.geac.backend.API.Controller;
 
+import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.Services.EventService;
@@ -36,5 +37,12 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> getEventById(@PathVariable UUID id) {
         EventResponseDTO event = eventService.getEventById(id);
         return ResponseEntity.ok(event);
+    }
+
+    @PatchMapping ("/{id}")
+    @PreAuthorize("hasRole('PROFESSOR') and hasRole('ADMIN')")
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable UUID id, @RequestBody @Valid EventPatchRequestDTO dto) {
+        EventResponseDTO updatedEvent = eventService.patchEvent(id, dto);
+        return ResponseEntity.ok(updatedEvent);
     }
 }

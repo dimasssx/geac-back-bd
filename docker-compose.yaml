@@ -1,6 +1,6 @@
 services:
   geac-postgres:
-    container_name: geac-postgres
+    container_name: geac-postgres-bd
     image: postgres:18.1
     environment:
       POSTGRES_PASSWORD: postgres

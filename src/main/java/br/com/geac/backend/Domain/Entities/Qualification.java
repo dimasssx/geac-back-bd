@@ -12,11 +12,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Qualifications {
+public class Qualification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "speaker_id", nullable = false)

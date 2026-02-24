@@ -1,22 +1,21 @@
 package br.com.geac.backend.Aplication.Services;
 
+import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
-import br.com.geac.backend.Aplication.Mappers.EventMapperr;
-import br.com.geac.backend.Aplication.Mappers.LocationMapper;
+import br.com.geac.backend.Aplication.Mappers.EventMapper;
 import br.com.geac.backend.Domain.Entities.*;
 import br.com.geac.backend.Repositories.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +24,9 @@ public class EventService {
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
     private final EventRequirementRepository eventRequirementRepository;
-    private final EventMapperr eventMapperr;
+    private final EventMapper eventMapper;
     private final TagRepository tagRepository;
+    private final SpeakerRepository speakerRepository;
     // private final UserRepository userRepository;
 
     @Transactional
@@ -63,38 +63,56 @@ public class EventService {
         event.setLocation(location);
         event.setRequirement(requirement);
         event.setTags(resolveTags(dto.tags()));
+        event.setSpeakers(resolveSpeakers(dto.speakers()));
         Event saved = eventRepository.save(event);
 
-        return eventMapperr.toResponseDTO(saved);
+        return eventMapper.toResponseDTO(saved);
     }
 
 
     @Transactional(readOnly = true)
     public List<EventResponseDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
-        return events.stream().map(eventMapperr::toResponseDTO).toList();
+        return events.stream().map(eventMapper::toResponseDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + id));
-        return eventMapperr.toResponseDTO(event);
+        return eventMapper.toResponseDTO(event);
     }
 
+    public EventResponseDTO patchEvent(UUID id, EventPatchRequestDTO dto) {
+
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        eventMapper.updateEventFromDto(dto, event);
+
+        if (dto.speakers() != null) event.setSpeakers(resolveSpeakers(dto.speakers()));
+        if (dto.tags() != null) event.setTags(resolveTags(dto.tags()));
+        if (dto.requirementId() != null) {
+            EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
+                    .orElseThrow(() -> new RuntimeException("Requirement não encontrado com ID: " + dto.requirementId()));
+            event.setRequirement(requirement);
+        }
+        // por enquanto so tem 1 categoria, mas se tiver mais de 1 no futuro, tem que resolver a mesma coisa dos speakers e tags
+        if (dto.categoryId() != null) {
+            var category = categoryRepository.findById(dto.categoryId()).orElseThrow();
+            event.setCategory(category);
+        }
+        return eventMapper.toResponseDTO(eventRepository.save(event));
+
+    }
 
     private Set<Tag> resolveTags(Set<Integer> ids) {
         if (ids == null || ids.isEmpty()) return Set.of();
         return tagRepository.findAllByIdIn(ids);
     }
 
-    protected List<String> resolveSpeakers(Event event) {
-        return List.of("Palestrante 1", "Palestrante 2"); //TODO: implementar no banco
-    }
-
-    protected List<String> resolveRequirementDescriptions(Event event) {
-        if (event.getRequirement() == null) return List.of();
-        return List.of(event.getRequirement().getDescription());
+    private Set<Speaker> resolveSpeakers(Set <Integer> ids) {
+        if (ids == null || ids.isEmpty()) return Set.of();
+        return speakerRepository.findAllByIdIn(ids);
     }
 
 }

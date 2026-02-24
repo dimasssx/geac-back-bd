@@ -1,9 +1,7 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -11,12 +9,10 @@ import java.util.Set;
 public record EventRequestDTO(
         @NotBlank(message = "O título é obrigatório")
         String title,
-
         @NotBlank(message = "A descrição é obrigatória")
         String description,
-
+        @URL(message = "O link online deve ser uma URL válida")
         String onlineLink,
-
         @NotNull(message = "A data de início é obrigatória")
         @Future(message = "A data de início deve ser no futuro")
         LocalDateTime startTime,
@@ -40,10 +36,15 @@ public record EventRequestDTO(
         Integer requirementId,
 
         @NotNull
+        @Size(min = 1, message = "O evento deve ter pelo menos uma tag")
         Set<Integer> tags, //TODO: mesma coisa dos de cima, mas já ta implementado pros 2 casos
 
         @NotNull
         //pode ser nulo, pois o evento pode ser online
-        Integer locationId
+        Integer locationId,
+
+        @NotNull
+        @Size(min = 1, message = "O evento deve ter pelo menos um palestrante")
+        Set<Integer> speakers
 ) {
 }

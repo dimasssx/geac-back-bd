@@ -11,14 +11,13 @@ import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = {LocationMapper.class})
-public interface EventMapperr {
+public interface EventMapper {
 
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "categoryName", source = "category.name")
     @Mapping(target = "organizerName", source = "organizer.name")
     @Mapping(target = "organizerEmail", source = "organizer.email")
     @Mapping(target = "reqId", source = "requirement.id")
-
     @Mapping(target = "requirementDescription", source = "event", qualifiedByName = "mapRequirementDescription")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
 
@@ -32,7 +31,7 @@ public interface EventMapperr {
         return List.of(event.getRequirement().getDescription());
     }
     @Named("mapSpeakers")
-    default List<String> resolveSpeakers(Event event) {
+    default List<String> mapSpeakers(Event event) {
         if (event.getSpeakers() == null) return List.of();
         return event.getSpeakers().stream()
                 .map(Speaker::getName)
@@ -43,7 +42,13 @@ public interface EventMapperr {
         return tags.stream().map(Tag::getName).toList();
     }
 
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "speakers", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "requirement", ignore = true)
     void updateEventFromDto(EventPatchRequestDTO dto, @MappingTarget Event entity);
 
 }
