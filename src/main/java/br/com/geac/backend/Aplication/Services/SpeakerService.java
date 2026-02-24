@@ -7,6 +7,7 @@ import br.com.geac.backend.Aplication.DTOs.Request.SpeakerRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.QualificationMapper;
 import br.com.geac.backend.Aplication.Mappers.SpeakerMapper;
 import br.com.geac.backend.Domain.Entities.Qualification;
+import br.com.geac.backend.Domain.Entities.Speaker;
 import br.com.geac.backend.Repositories.SpeakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,13 +61,28 @@ public class SpeakerService {
             throw new RuntimeException("Another speaker with the same name and email already exists");
         }
 
-        //TODO: talvez trocar só o que mudou, assim troca id constantemente.
-        if (dto.qualifications() != null && !dto.qualifications().isEmpty()) {
-             var qualifications = resolveQualifications(dto.qualifications());
-             speaker.setQualifications(qualifications);
-         }
+        //TODO: verificacao meia boca, se der melhorar dps
+        if (dto.qualifications() != null && !dto.qualifications().isEmpty() && qualificationsChanged(speaker, dto.qualifications())) {
+            var qualifications = resolveQualifications(dto.qualifications());
+            speaker.setQualifications(qualifications);
+        }
         return mapper.toDto(repository.save(speaker));
 
+    }
+
+    private boolean qualificationsChanged(Speaker speaker, Set<QualificationRequestDTO> dtos) {
+        if (speaker.getQualifications().size() != dtos.size()) {
+            return true;
+        }
+        return dtos.stream()
+                .anyMatch(dto ->
+                        speaker.getQualifications()
+                                .stream()
+                                .noneMatch(q ->
+                                        q.getTitleName().equals(dto.titleName())
+                                        && q.getInstitution().equals(dto.institution())
+                                )
+                );
     }
 
     @Transactional
