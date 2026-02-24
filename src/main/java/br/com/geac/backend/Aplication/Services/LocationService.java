@@ -6,6 +6,7 @@ import br.com.geac.backend.Aplication.DTOs.Request.LocationRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.LocationMapper;
 import br.com.geac.backend.Repositories.LocationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +66,10 @@ public class LocationService {
 
         var location = locationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
-        locationRepository.delete(location); //TODO: aqui vai dar erro de integridade verificar como tratar
+        try {
+            locationRepository.delete(location);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Cannot delete location because it is referenced by other entities");
+        }
     }
 }

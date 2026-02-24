@@ -4,6 +4,7 @@ import br.com.geac.backend.Domain.Exceptions.ConflictException;
 import br.com.geac.backend.Domain.Exceptions.ConflictExceptionDetails;
 import br.com.geac.backend.Domain.Exceptions.ExceptionDetails;
 import org.jspecify.annotations.Nullable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,30 +23,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ConflictExceptionDetails> handleConflictException(ConflictException ex) {
 
-            return new ResponseEntity<>(
-                    ConflictExceptionDetails.builder()
-                            .title("Conflict")
-                            .status(HttpStatus.CONFLICT.value())
-                            .timestamp(LocalDateTime.now())
-                            .details(ex.getClass().getSimpleName())
-                            .message("Conflict occurred: " + ex.getMessage())
-                            .build(), HttpStatus.CONFLICT
+        return new ResponseEntity<>(
+                ConflictExceptionDetails.builder()
+                        .title("Conflict")
+                        .status(HttpStatus.CONFLICT.value())
+                        .timestamp(LocalDateTime.now())
+                        .details(ex.getClass().getSimpleName())
+                        .message("Conflict occurred: " + ex.getMessage())
+                        .build(), HttpStatus.CONFLICT
 
-            );
+        );
     }
-@Override
-protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-    return new ResponseEntity<>(
-            ExceptionDetails.builder()
-                    .title("BAD REQUEST")
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .timestamp(LocalDateTime.now())
-                    .details(ex.getClass().getSimpleName())
-                    .message("Bad Request: check the fields and try again.")
-                    .build(), HttpStatus.BAD_REQUEST
-            );
-}
+    @Override
+    protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        return new ResponseEntity<>(
+                ExceptionDetails.builder()
+                        .title("BAD REQUEST")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .timestamp(LocalDateTime.now())
+                        .details(ex.getClass().getSimpleName())
+                        .message("Bad Request: check the fields and try again.")
+                        .build(), HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleConflict(DataIntegrityViolationException e) {
+        return new ResponseEntity<>(
+                ExceptionDetails.builder()
+                        .title("Erro de integridade de dados")
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .timestamp(LocalDateTime.now())
+                        .details(e.getClass().getSimpleName())
+                        .message("Bad Request: dados relacionados não podem ser excluídos ou modificados.")
+                        .build(), HttpStatus.BAD_REQUEST
+        );
+    }
 
 }
