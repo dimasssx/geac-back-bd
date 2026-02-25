@@ -3,23 +3,23 @@ EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE categories
 (
-    id          SERIAL PRIMARY KEY,
-    name        VARCHAR(50) NOT NULL UNIQUE,
+    id   SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT
 );
 
 CREATE TABLE locations
 (
-    id              SERIAL PRIMARY KEY,
-    name            VARCHAR(100) NOT NULL,
-    street          VARCHAR(150) NOT NULL,
+    id           SERIAL PRIMARY KEY,
+    name         VARCHAR(100) NOT NULL,
+    street       VARCHAR(150) NOT NULL,
     number          VARCHAR(20),
-    neighborhood    VARCHAR(100) NOT NULL,
-    city            VARCHAR(100) NOT NULL,
-    state           VARCHAR(2)   NOT NULL,
-    zip_code        VARCHAR(10)  NOT NULL,
+    neighborhood VARCHAR(100) NOT NULL,
+    city         VARCHAR(100) NOT NULL,
+    state        VARCHAR(2)   NOT NULL,
+    zip_code     VARCHAR(10)  NOT NULL,
     reference_point TEXT,
-    capacity        INTEGER      NOT NULL
+    capacity     INTEGER      NOT NULL
 );
 
 CREATE TABLE users
@@ -46,9 +46,9 @@ CREATE TABLE tags
 
 CREATE TABLE speakers
 (
-    id    SERIAL PRIMARY KEY,
-    name  VARCHAR(150) NOT NULL,
-    bio   TEXT, -- Breve biografia para exibição na página do evento
+    id   SERIAL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    bio  TEXT,
     email VARCHAR(100)
 );
 
@@ -58,6 +58,8 @@ CREATE TABLE speaker_qualifications
     speaker_id  INTEGER      NOT NULL REFERENCES speakers (id) ON DELETE CASCADE,
     title_name  VARCHAR(100) NOT NULL, -- Ex: "Doutor em Ciência da Computação"
     institution VARCHAR(100) NOT NULL  -- Ex: "USP"
+);
+
 CREATE TABLE organizers
 (
     id            SERIAL PRIMARY KEY,
@@ -68,10 +70,10 @@ CREATE TABLE organizers
 CREATE TABLE organizer_members
 (
     id           SERIAL PRIMARY KEY,
-    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
-    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    organizer_id INTEGER NOT NULL REFERENCES organizers (id) ON DELETE CASCADE,
+    user_id      UUID    NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(organizer_id, user_id)
+    UNIQUE (organizer_id, user_id)
 );
 
 CREATE TABLE events
@@ -110,43 +112,47 @@ CREATE TABLE event_tags
     PRIMARY KEY (event_id, tag_id)
 );
 
-CREATE TABLE organizer_requests (
-                                    id SERIAL PRIMARY KEY,
-                                    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                                    organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
-                                    justification TEXT,
-                                    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    resolved_at TIMESTAMP
+CREATE TABLE organizer_requests
+(
+    id            SERIAL PRIMARY KEY,
+    user_id       UUID    NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    organizer_id  INTEGER NOT NULL REFERENCES organizers (id) ON DELETE CASCADE,
+    justification TEXT,
+    status        VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    created_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    resolved_at   TIMESTAMP
 );
 
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
+
 INSERT INTO speakers (name, bio, email)
-VALUES
-    ('Dr. Alan Turing', 'Pai da computação e especialista em IA.', 'alan.turing@example.com'),
-    ('Dra. Marie Curie', 'Pesquisadora em física e química.', 'marie.curie@example.com'),
-    ('Grace Hopper', 'Pioneira na programação e criadora do COBOL.', 'grace.hopper@example.com'),
-    ('Nikola Tesla', 'Inovador em sistemas de energia elétrica.', 'nikola.tesla@example.com'),
-    ('Ada Lovelace', 'Primeira programadora da história.', 'ada.lovelace@example.com'),
-    ('Richard Feynman', 'Físico teórico e Nobel de Física.', 'richard.feynman@example.com'),
-    ('Margaret Hamilton', 'Diretora de engenharia de software da missão Apollo.', 'margaret.hamilton@example.com'),
-    ('Carl Sagan', 'Astrofísico e divulgador científico.', 'carl.sagan@example.com'),
-    ('Hedy Lamarr', 'Inventora da base para o Wi-Fi e Bluetooth.', 'hedy.lamarr@example.com'),
-    ('Steve Wozniak', 'Cofundador da Apple e engenheiro de hardware.', 'steve.wozniak@example.com');
+VALUES ('Dr. Alan Turing', 'Pai da computação e especialista em IA.', 'alan.turing@example.com'),
+       ('Dra. Marie Curie', 'Pesquisadora em física e química.', 'marie.curie@example.com'),
+       ('Grace Hopper', 'Pioneira na programação e criadora do COBOL.', 'grace.hopper@example.com'),
+       ('Nikola Tesla', 'Inovador em sistemas de energia elétrica.', 'nikola.tesla@example.com'),
+       ('Ada Lovelace', 'Primeira programadora da história.', 'ada.lovelace@example.com'),
+       ('Richard Feynman', 'Físico teórico e Nobel de Física.', 'richard.feynman@example.com'),
+       ('Margaret Hamilton', 'Diretora de engenharia de software da missão Apollo.', 'margaret.hamilton@example.com'),
+       ('Carl Sagan', 'Astrofísico e divulgador científico.', 'carl.sagan@example.com'),
+       ('Hedy Lamarr', 'Inventora da base para o Wi-Fi e Bluetooth.', 'hedy.lamarr@example.com'),
+       ('Steve Wozniak', 'Cofundador da Apple e engenheiro de hardware.', 'steve.wozniak@example.com');
+
+
 INSERT INTO speaker_qualifications (speaker_id, title_name, institution)
-VALUES
-    (1, 'Doutorado em Matemática', 'University of Cambridge'),
-    (2, 'Nobel de Química', 'Sorbonne University'),
-    (3, 'PHD em Matemática', 'Yale University'),
-    (4, 'Engenheiro Elétrico', 'Graz University of Technology'),
-    (5, 'Especialista em Algoritmos', 'University of London'),
-    (6, 'Doutorado em Física', 'Princeton University'),
-    (7, 'Especialista em Software de Sistemas', 'MIT'),
-    (8, 'Doutorado em Astrofísica', 'University of Chicago'),
-    (9, 'Inventora de Espectro de Difusão', 'National Inventors Hall of Fame'),
-    (10, 'Engenheiro de Computação', 'UC Berkeley');
+VALUES (1, 'Doutorado em Matemática', 'University of Cambridge'),
+       (2, 'Nobel de Química', 'Sorbonne University'),
+       (3, 'PHD em Matemática', 'Yale University'),
+       (4, 'Engenheiro Elétrico', 'Graz University of Technology'),
+       (5, 'Especialista em Algoritmos', 'University of London'),
+       (6, 'Doutorado em Física', 'Princeton University'),
+       (7, 'Especialista em Software de Sistemas', 'MIT'),
+       (8, 'Doutorado em Astrofísica', 'University of Chicago'),
+       (9, 'Inventora de Espectro de Difusão', 'National Inventors Hall of Fame'),
+       (10, 'Engenheiro de Computação', 'UC Berkeley');
+
+
 INSERT INTO public.users (id, full_name, email, password_hash, user_type, created_at)
 VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
         '$2a$10$kXz14cSQ4CuM8ev7MKWtQu1/4Ny7v/ic5xuQxgwZzh.x9ZHLuxOM2', 'STUDENT', NOW()),
@@ -163,32 +169,23 @@ VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
        ('be4999bf-6d31-4414-a0a6-ae61d53a6387', 'professor2', 'professor2@test.com',
         '$2a$10$MOljMoo4PYuoz4yzBJK8K.tW/2iBtWFcFUkZv8d5RuGfIMikJITDu', 'PROFESSOR', NOW()),
        ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com',
-        '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW());
-
-INSERT INTO public.users (id, full_name, email, password_hash, user_type, created_at) VALUES
-                                                                                          ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com', '$2a$10$kXz14cSQ4CuM8ev7MKWtQu1/4Ny7v/ic5xuQxgwZzh.x9ZHLuxOM2', 'STUDENT', NOW()),
-                                                                                          ('b82120cf-41a7-406a-b52d-259cdbef3041', 'student2', 'student2@test.com', '$2a$10$.bW0KlZDt.tkGrj6xxTgL./OoUtYrmaq3re.ABGjN7u4pHnnl.k3G', 'STUDENT', NOW()),
-                                                                                          ('5c0a92a1-b445-4e4b-807c-6fbca67b9092', 'student3', 'student3@test.com', '$2a$10$TTE/WAR4tTdILrWFdC7aDOT1lJzwHpNVY8MYBiHkw1q6Ki3oQFy7G', 'STUDENT', NOW()),
-                                                                                          ('9be3d05c-7638-4f78-814a-ce4c21463262', 'student4', 'student4@test.com', '$2a$10$6R/amLD0hO1oMDMyCSiA4.jCJgcKuPgYFv9wxpmLt9d0Fx/YXyR9q', 'STUDENT', NOW()),
-                                                                                          ('286c2d18-9814-4d88-a55d-14bacaefcf49', 'student5', 'student5@test.com', '$2a$10$kWOVCbnEdBKwoirx8IvxxuBC1r5TS8O8/ekLd1JkAKlVvW6rDLajy', 'STUDENT', NOW()),
-                                                                                          ('073b9076-2317-4511-a9c3-535654e75363', 'professor1', 'professor1@test.com', '$2a$10$UAH/nCUUYJ6Cklr79GLUVuY91SBHZh.JmyP/Id6NdnTBvhG6m5Vma', 'PROFESSOR', NOW()),
-                                                                                          ('be4999bf-6d31-4414-a0a6-ae61d53a6387', 'professor2', 'professor2@test.com', '$2a$10$MOljMoo4PYuoz4yzBJK8K.tW/2iBtWFcFUkZv8d5RuGfIMikJITDu', 'PROFESSOR', NOW()),
-                                                                                          ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com', '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW()),
-                                                                                          ('e6137fdc-6fc2-4776-8616-9e238c1b48a7', 'admin', 'admin@admin.com', '$2a$10$/h/iWZLAhU4PfZmTew1nl.6xfNP4ymHEu5zSWXGhGIsce41x7p146', 'ADMIN', NOW());
+        '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW()),
+       ('e6137fdc-6fc2-4776-8616-9e238c1b48a7', 'admin', 'admin@admin.com',
+        '$2a$10$/h/iWZLAhU4PfZmTew1nl.6xfNP4ymHEu5zSWXGhGIsce41x7p146', 'ADMIN', NOW());
 
 
 INSERT INTO categories (name, description)
-VALUES
-    ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
-    ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
-    ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
-    ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
-    ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
-    ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
-    ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
-    ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
-    ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
-    ('outro', 'Categorias que não se enquadram nas definições anteriores.');
+VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
+       ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
+       ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
+       ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
+       ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
+       ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
+       ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
+       ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
+       ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
+       ('outro', 'Categorias que não se enquadram nas definições anteriores.');
+
 
 INSERT INTO public.locations (name, street, number, neighborhood, city, state, zip_code, reference_point, capacity)
 VALUES ('Laboratório de Informática 01', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
@@ -279,6 +276,7 @@ VALUES ('Laboratório de Informática 01', 'Rua das Flores', '123', 'Centro', 'S
        ('Laboratório Maker Avançado', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
         'Campus Caruaru - Inovação', 40);
 
+
 INSERT INTO requirements (description)
 VALUES ('Trazer notebook'),
        ('$5 para corpo docente/funcionários'),
@@ -292,6 +290,7 @@ VALUES ('Trazer notebook'),
        ('Recomendado para estudantes de Ciências Ambientais e áreas relacionadas'),
        ('Traje esporte fino recomendado'),
        ('Trazer currículos impressos');
+
 
 INSERT INTO tags (name)
 VALUES ('apoio'),
@@ -325,9 +324,9 @@ VALUES ('apoio'),
        ('workshop');
 
 
-insert into public.events (id, organizer_id, category_id, location_id, title, description, online_link, start_time,
+INSERT INTO public.events (id, organizer_id, category_id, location_id, title, description, online_link, start_time,
                            end_time, workload_hours, max_capacity, requirement_id, status, created_at)
-values ('e153c21a-d628-46ef-b838-b66d4758b966', '073b9076-2317-4511-a9c3-535654e75363', 2, 1,
+VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', '073b9076-2317-4511-a9c3-535654e75363', 2, 1,
         'Inteligência Artificial e o Futuro do Trabalho',
         'Junte-se a nós para uma palestra esclarecedora sobre como a IA está transformando o local de trabalho e o que isso significa para os futuros profissionais. O Dr. Fulano de Tal discutirá as tendências atuais, considerações éticas e oportunidades de carreira em IA.',
         'https://example.com/ia-futuro-trabalho', '2026-02-20 14:00:00.000000', '2026-02-20 16:00:00.000000', 2, 200, 3,
@@ -367,65 +366,58 @@ values ('e153c21a-d628-46ef-b838-b66d4758b966', '073b9076-2317-4511-a9c3-535654e
         'https://example.com/conferencia-blockchain', '2026-03-22 10:00:00.000000', '2026-03-22 16:00:00.000000', 6,
         150, 9, 'upcoming', NOW());
 
+
 INSERT INTO public.event_tags (event_id, tag_id)
-VALUES
-    -- Evento 1 (Inteligência Artificial)
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 5),
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 16),
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 17),
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 28),
+VALUES -- Evento 1 (Inteligência Artificial)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 5),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 16),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 17),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 28),
+       -- Evento 2 (Festival Cultural)
+       ('e2222222-d628-46ef-b838-b66d4758b966', 9),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 11),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 14),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 18),
+       -- Evento 3 (Mudanças Climáticas)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 6),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 7),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 20),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 27),
+       -- Evento 4 (Feira de Carreiras)
+       ('e4444444-d628-46ef-b838-b66d4758b966', 5),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 12),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 23),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 28),
+       -- Evento 5 (Workshop de Marketing)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 10),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 19),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 22),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 29),
+       -- Evento 6 (Seminário de Saúde Mental)
+       ('e6666666-d628-46ef-b838-b66d4758b966', 1),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 3),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 13),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 26),
+       -- Evento 7 (Noite de Rock)
+       ('e7777777-d628-46ef-b838-b66d4758b966', 2),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 21),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 24),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 25),
+       -- Evento 8 (Conferência sobre Blockchain)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 4),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 8),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 15),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 28);
 
-    -- Evento 2 (Festival Cultural)
-    ('e2222222-d628-46ef-b838-b66d4758b966', 9),
-    ('e2222222-d628-46ef-b838-b66d4758b966', 11),
-    ('e2222222-d628-46ef-b838-b66d4758b966', 14),
-    ('e2222222-d628-46ef-b838-b66d4758b966', 18),
-
-    -- Evento 3 (Mudanças Climáticas)
-    ('e3333333-d628-46ef-b838-b66d4758b966', 6),
-    ('e3333333-d628-46ef-b838-b66d4758b966', 7),
-    ('e3333333-d628-46ef-b838-b66d4758b966', 20),
-    ('e3333333-d628-46ef-b838-b66d4758b966', 27),
-
-    -- Evento 4 (Feira de Carreiras)
-    ('e4444444-d628-46ef-b838-b66d4758b966', 5),
-    ('e4444444-d628-46ef-b838-b66d4758b966', 12),
-    ('e4444444-d628-46ef-b838-b66d4758b966', 23),
-    ('e4444444-d628-46ef-b838-b66d4758b966', 28),
-
-    -- Evento 5 (Workshop de Marketing)
-    ('e5555555-d628-46ef-b838-b66d4758b966', 10),
-    ('e5555555-d628-46ef-b838-b66d4758b966', 19),
-    ('e5555555-d628-46ef-b838-b66d4758b966', 22),
-    ('e5555555-d628-46ef-b838-b66d4758b966', 29),
-
-    -- Evento 6 (Seminário de Saúde Mental)
-    ('e6666666-d628-46ef-b838-b66d4758b966', 1),
-    ('e6666666-d628-46ef-b838-b66d4758b966', 3),
-    ('e6666666-d628-46ef-b838-b66d4758b966', 13),
-    ('e6666666-d628-46ef-b838-b66d4758b966', 26),
-
-    -- Evento 7 (Noite de Rock)
-    ('e7777777-d628-46ef-b838-b66d4758b966', 2),
-    ('e7777777-d628-46ef-b838-b66d4758b966', 21),
-    ('e7777777-d628-46ef-b838-b66d4758b966', 24),
-    ('e7777777-d628-46ef-b838-b66d4758b966', 25),
-
-    -- Evento 8 (Conferência sobre Blockchain)
-    ('e8888888-d628-46ef-b838-b66d4758b966', 4),
-    ('e8888888-d628-46ef-b838-b66d4758b966', 8),
-    ('e8888888-d628-46ef-b838-b66d4758b966', 15),
-    ('e8888888-d628-46ef-b838-b66d4758b966', 28);
 
 INSERT INTO event_speakers (event_id, speaker_id)
-VALUES
-    -- Evento de IA (e153c21a...) com Alan Turing (ID 1)
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 1),
-    -- Evento de IA com Margaret Hamilton (ID 7)
-    ('e153c21a-d628-46ef-b838-b66d4758b966', 7),
-    -- Mudanças Climáticas (e3333333...) com Carl Sagan (ID 8)
-    ('e3333333-d628-46ef-b838-b66d4758b966', 8),
-    -- Workshop de Marketing (e5555555...) com Steve Wozniak (ID 10)
-    ('e5555555-d628-46ef-b838-b66d4758b966', 10),
-    -- Conferência Blockchain (e8888888...) com Hedy Lamarr (ID 9)
-    ('e8888888-d628-46ef-b838-b66d4758b966', 9);
+VALUES -- Evento de IA (e153c21a...) com Alan Turing (ID 1)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 1),
+       -- Evento de IA com Margaret Hamilton (ID 7)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 7),
+       -- Mudanças Climáticas (e3333333...) com Carl Sagan (ID 8)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 8),
+       -- Workshop de Marketing (e5555555...) com Steve Wozniak (ID 10)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 10),
+       -- Conferência Blockchain (e8888888...) com Hedy Lamarr (ID 9)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 9);
