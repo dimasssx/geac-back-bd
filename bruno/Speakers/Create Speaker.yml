@@ -1,0 +1,33 @@
+info:
+  name: Create Speaker
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/speakers"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Fazer testes",
+        "bio": "Fazer testes",
+        "qualifications": [
+          {
+            "titleName": "Mestre em Testes",
+            "institution": "UFTE"
+          },
+          {
+            "titleName": "Doutor em Testes",
+            "institution": "UFTE"
+          }
+        ],
+        "email": "Fazer testes"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

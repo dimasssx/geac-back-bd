@@ -1,0 +1,15 @@
+info:
+  name: Cancel Registration
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/registrations/e8888888-d628-46ef-b838-b66d4758b966/cancel"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

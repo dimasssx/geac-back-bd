@@ -1,0 +1,30 @@
+info:
+  name: Create Location
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locations"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Teste",
+        "street": "Rua de Teste",
+        "number": "1",
+        "neighborhood": "Testerland",
+        "city": "Teste",
+        "state": "AA",
+        "zipCode": "12345-678",
+        "referencePoint": "Próximo da Avenida de Testes",
+        "capacity": 100,
+        "campus": "Campus Surubim Alfa"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

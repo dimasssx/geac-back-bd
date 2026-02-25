@@ -1,5 +1,6 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
+import br.com.geac.backend.Domain.Enums.Campus;
 import jakarta.validation.constraints.*;
 
 public record LocationRequestDTO(
@@ -37,5 +38,8 @@ public record LocationRequestDTO(
 
         @NotNull(message = "A capacidade é obrigatória")
         @Positive(message = "A capacidade deve ser um número positivo")
-        Integer capacity
+        Integer capacity,
+
+        @NotNull(message = "O campus é obrigatório")
+        Campus campus
 ) {}

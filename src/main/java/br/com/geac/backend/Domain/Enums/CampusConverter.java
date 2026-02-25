@@ -12,7 +12,6 @@ public class CampusConverter implements AttributeConverter<Campus, String> {
         if (campus == null) {
             return null;
         }
-        // Salva o texto amigável ("Campus Central") no banco
         return campus.getDescricao();
     }
 
@@ -21,7 +20,6 @@ public class CampusConverter implements AttributeConverter<Campus, String> {
         if (descricao == null) {
             return null;
         }
-        // Lê o texto amigável do banco e transforma no Enum correto
         return Stream.of(Campus.values())
                 .filter(c -> c.getDescricao().equals(descricao))
                 .findFirst()

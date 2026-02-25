@@ -1,0 +1,27 @@
+info:
+  name: Mark Attendance
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/registrations/e8888888-d628-46ef-b838-b66d4758b966/attendance/bulk"
+  body:
+    type: json
+    data: |-
+      {
+        "userIds": [
+          "5c0a92a1-b445-4e4b-807c-6fbca67b9092",
+          "9be3d05c-7638-4f78-814a-ce4c21463262",
+          "286c2d18-9814-4d88-a55d-14bacaefcf49",
+          "073b9076-2317-4511-a9c3-535654e75363"
+        ],
+        "attended": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

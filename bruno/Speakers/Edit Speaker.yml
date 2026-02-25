@@ -1,0 +1,33 @@
+info:
+  name: Edit Speaker
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/speakers/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Fazer testes",
+        "bio": "Fazer testes",
+        "qualifications": [
+          {
+            "titleName": "Mestre em Testes",
+            "institution": "UFTE"
+          },
+          {
+            "titleName": "Doutor em Testes",
+            "institution": "UFTE"
+          }
+        ],
+        "email": "Fazer testes"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
