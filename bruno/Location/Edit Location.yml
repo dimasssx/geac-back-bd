@@ -1,0 +1,30 @@
+info:
+  name: Edit Location
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/locations/50"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Teste",
+        "street": "Rua de Teste",
+        "number": "2",
+        "neighborhood": "Testerland",
+        "city": "Teste",
+        "state": "AA",
+        "zipCode": "12345-678",
+        "referencePoint": "Próximo da Avenida de Testes",
+        "capacity": 100,
+        "campus": "Campus Surubim Beta"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

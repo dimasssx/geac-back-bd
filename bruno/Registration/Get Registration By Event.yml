@@ -1,0 +1,15 @@
+info:
+  name: Get Registration By Event
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/registrations/event/e8888888-d628-46ef-b838-b66d4758b966"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

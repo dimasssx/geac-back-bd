@@ -1,0 +1,22 @@
+info:
+  name: Edit Category
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/categories/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "teste",
+        "description": "teste de descrição detalhado"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
