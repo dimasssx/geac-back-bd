@@ -27,6 +27,7 @@ public class EventService {
     private final EventRequirementRepository eventRequirementRepository;
     private final EventMapperr eventMapperr;
     private final TagRepository tagRepository;
+    private final RegistrationRepository registrationRepository;
     // private final UserRepository userRepository;
 
     @Transactional
@@ -65,21 +66,33 @@ public class EventService {
         event.setTags(resolveTags(dto.tags()));
         Event saved = eventRepository.save(event);
 
-        return eventMapperr.toResponseDTO(saved);
+        return eventMapperr.toResponseDTO(saved,0, false);
     }
 
 
     @Transactional(readOnly = true)
     public List<EventResponseDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
-        return events.stream().map(eventMapperr::toResponseDTO).toList();
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return events.stream().map(event -> {
+            Integer count = (int) registrationRepository.countByEventId(event.getId());
+            Boolean isRegistered = registrationRepository.existsByUserIdAndEventId(loggedUser.getId(), event.getId());
+
+            return eventMapperr.toResponseDTO(event, count, isRegistered);
+        }).toList();
     }
 
     @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + id));
-        return eventMapperr.toResponseDTO(event);
+        Integer registeredCount = (int) registrationRepository.countByEventId(id);
+
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Boolean isRegistered = registrationRepository.existsByUserIdAndEventId(loggedUser.getId(), id);
+
+        return eventMapperr.toResponseDTO(event, registeredCount, isRegistered);
     }
 
 

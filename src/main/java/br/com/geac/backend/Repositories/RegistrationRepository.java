@@ -8,10 +8,19 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface RegistrationRepository extends JpaRepository<Registration, UUID> {
+
+    Optional<Registration> findByUserIdAndEventId(UUID userId, UUID eventId);
+
+    boolean existsByUserIdAndEventId(UUID userId, UUID eventId);
+
+    long countByEventId(UUID eventId);
+
+    List<Registration> findByEventId(UUID eventId);
 
     // Faz o UPDATE apenas nos usuários que vieram na lista, dentro do evento específico
     @Modifying
@@ -21,6 +30,4 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
             @Param("userIds") List<UUID> userIds,
             @Param("attended") boolean attended
     );
-
-    List<Registration> findByEventId(UUID eventId);
 }

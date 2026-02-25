@@ -37,4 +37,22 @@ public class RegistrationController {
         List<RegistrationResponseDTO> list = registrationService.getRegistrationsByEvent(eventId);
         return ResponseEntity.ok(list);
     }
+
+    @PostMapping("/{eventId}/register")
+    public ResponseEntity<Void> registerToEvent(@PathVariable UUID eventId) {
+
+        registrationService.registerToEvent(eventId);
+
+        return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/{eventId}/cancel")
+    // Qualquer usuário autenticado pode acessar, pois vai cancelar a própria inscrição
+    public ResponseEntity<Void> cancelRegistration(@PathVariable UUID eventId) {
+
+        registrationService.cancelRegistration(eventId);
+
+        return ResponseEntity.noContent().build(); // Retorna 204 No Content
+    }
+
 }

@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.com.geac.backend.Domain.Exceptions.ConflictException;
 
 import java.util.List;
 import java.util.UUID;
@@ -63,4 +64,52 @@ public class RegistrationService {
                 ))
                 .toList();
     }
+
+    @Transactional
+    public void registerToEvent(UUID eventId) {
+
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + eventId));
+
+        if (registrationRepository.existsByUserIdAndEventId(loggedUser.getId(), eventId)) {
+            throw new ConflictException("Você já está inscrito neste evento.");
+        }
+
+        if (event.getOrganizer().getId().equals(loggedUser.getId())) {
+            throw new ConflictException("Você não pode se inscrever no evento que você mesmo está organizando.");
+        }
+
+        long currentRegistrations = registrationRepository.countByEventId(eventId);
+        if (currentRegistrations >= event.getMaxCapacity()) {
+            throw new ConflictException("Desculpe, este evento já atingiu a capacidade máxima de " + event.getMaxCapacity() + " participantes.");
+        }
+
+        Registration registration = new Registration();
+        registration.setUser(loggedUser);
+        registration.setEvent(event);
+        registration.setStatus("CONFIRMED");
+
+        registrationRepository.save(registration);
+    }
+
+    @Transactional
+    public void cancelRegistration(UUID eventId) {
+        // 1. Pega o usuário logado
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // 2. Busca a inscrição dele no evento
+        Registration registration = registrationRepository.findByUserIdAndEventId(loggedUser.getId(), eventId)
+                .orElseThrow(() -> new ConflictException("Você não possui uma inscrição ativa neste evento."));
+
+        // 3. (Opcional) Regra de negócio extra: Não permitir cancelar se a presença já foi dada
+        if (Boolean.TRUE.equals(registration.getAttended())) {
+            throw new ConflictException("Não é possível cancelar a inscrição pois sua presença já foi validada no evento.");
+        }
+
+        // 4. Deleta a inscrição do banco (liberando a vaga automaticamente)
+        registrationRepository.delete(registration);
+    }
+
 }
