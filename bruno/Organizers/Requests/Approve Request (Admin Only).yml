@@ -1,0 +1,15 @@
+info:
+  name: Approve Request (Admin Only)
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/organizer-requests/1/approve"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,35 @@
+info:
+  name: Create Event
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/events/create"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Test Event",
+        "description": "Happy Ending",
+        "startTime": "2026-12-30T23:59:59",
+        "endTime": "2026-12-31T23:59:59",
+        "categoryId": 1,
+        "requirementId": 1,
+        "locationId": 1,
+        "workloadHours": 2,
+        "maxCapacity": 1,
+        "onlineLink": "http://example.com",
+        "tags": [
+          1,
+          2,
+          3
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

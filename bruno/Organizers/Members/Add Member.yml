@@ -1,0 +1,21 @@
+info:
+  name: Add Member
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/organizers/1/members"
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "9c914c7e-efd5-44c1-8e8c-c8886c66f9d3"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

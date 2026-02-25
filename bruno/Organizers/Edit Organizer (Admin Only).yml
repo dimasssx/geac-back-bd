@@ -1,0 +1,22 @@
+info:
+  name: Edit Organizer (Admin Only)
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/organizers/1"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Departamento de Física",
+        "contactEmail": "depfisica@gmail.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

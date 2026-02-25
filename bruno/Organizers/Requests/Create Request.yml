@@ -1,0 +1,23 @@
+info:
+  name: Create Request
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/organizer-requests"
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "5244dc9e-9cdb-4633-86f9-76850b1424a3",
+        "organizerId": "1",
+        "justification": "TEST"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
