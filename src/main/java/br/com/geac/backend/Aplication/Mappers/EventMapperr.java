@@ -13,16 +13,19 @@ import java.util.Set;
 @Mapper(componentModel = "spring", uses = {LocationMapper.class})
 public interface EventMapperr {
 
-    @Mapping(target = "categoryId", source = "category.id")
-    @Mapping(target = "categoryName", source = "category.name")
-    @Mapping(target = "organizerName", source = "organizer.name")
-    @Mapping(target = "organizerEmail", source = "organizer.email")
-    @Mapping(target = "reqId", source = "requirement.id")
+    @Mapping(target = "categoryId", source = "event.category.id")
+    @Mapping(target = "categoryName", source = "event.category.name")
+    @Mapping(target = "organizerName", source = "event.organizer.name")
+    @Mapping(target = "organizerEmail", source = "event.organizer.email")
+    @Mapping(target = "reqId", source = "event.requirement.id")
 
     @Mapping(target = "requirementDescription", source = "event", qualifiedByName = "mapRequirementDescription")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
 
-    EventResponseDTO toResponseDTO(Event event);
+    @Mapping(target = "registeredCount", source = "registeredCount")
+    @Mapping(target = "isRegistered", source = "isRegistered")
+
+    EventResponseDTO toResponseDTO(Event event, Integer registeredCount, Boolean isRegistered);
 
     @Named("mapRequirementDescription")
     default List<String> mapRequirementDescription(Event event) {

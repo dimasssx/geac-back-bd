@@ -33,6 +33,9 @@ public record EventResponseDTO(
     List<String> requirementDescription,
 
     List<String> tags,
-    List<String> speakers
+    List<String> speakers,
+
+    Integer registeredCount,
+    Boolean isRegistered
 
 ) {}
