@@ -1,5 +1,6 @@
 package br.com.geac.backend.Domain.Entities;
 
+import br.com.geac.backend.Domain.Enums.Campus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,9 @@ public class Location {
 
     @Column(name = "zip_code", length = 10, nullable = false)
     private String zipCode;
+
+    @Column(name = "campus", length = 100, nullable = false)
+    private Campus campus;
 
     @Column(name = "reference_point", columnDefinition = "TEXT")
     private String referencePoint;
