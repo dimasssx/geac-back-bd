@@ -8,5 +8,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface OrganizerMapper {
     OrganizerResponseDTO toResponseDTO(Organizer organizer);
+
     Organizer toEntity(OrganizerRequestDTO dto);
 }

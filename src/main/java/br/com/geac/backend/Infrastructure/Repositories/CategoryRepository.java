@@ -1,4 +1,4 @@
-package br.com.geac.backend.Repositories;
+package br.com.geac.backend.Infrastructure.Repositories;
 
 import br.com.geac.backend.Domain.Entities.Category;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -5,7 +5,7 @@ import br.com.geac.backend.Aplication.DTOs.Request.OrganizerRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.OrganizerMapper;
 import br.com.geac.backend.Domain.Entities.Organizer;
 import br.com.geac.backend.Domain.Exceptions.ConflictException;
-import br.com.geac.backend.Repositories.OrganizerRepository;
+import br.com.geac.backend.Infrastructure.Repositories.OrganizerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

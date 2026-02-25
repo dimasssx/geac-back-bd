@@ -9,4 +9,5 @@ public record PendingRequestResponseDTO(
         String organizerName,
         String justification,
         LocalDateTime createdAt
-) {}
+) {
+}

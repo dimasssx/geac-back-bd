@@ -37,9 +37,8 @@ public class LocationController {
     }
 
     @PatchMapping("/{id}")
-   // @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
-    public ResponseEntity<LocationResponseDTO> updateLocation(@PathVariable @Positive Integer id,
-                                                           @RequestBody @Valid LocationPatchRequestDTO dto) {
+    // @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+    public ResponseEntity<LocationResponseDTO> updateLocation(@PathVariable @Positive Integer id, @RequestBody @Valid LocationPatchRequestDTO dto) {
         return ResponseEntity.ok(service.updateLocation(id, dto));
     }
 

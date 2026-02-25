@@ -1,4 +1,4 @@
-package br.com.geac.backend.Repositories;
+package br.com.geac.backend.Infrastructure.Repositories;
 
 import br.com.geac.backend.Domain.Entities.OrganizerMember;
 import org.springframework.data.jpa.repository.JpaRepository;

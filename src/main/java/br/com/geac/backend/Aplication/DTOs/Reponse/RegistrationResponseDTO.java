@@ -8,4 +8,5 @@ public record RegistrationResponseDTO(
         String userEmail,
         Boolean attended,
         String status
-) {}
+) {
+}

@@ -1,4 +1,4 @@
-package br.com.geac.backend.Repositories;
+package br.com.geac.backend.Infrastructure.Repositories;
 
 import br.com.geac.backend.Domain.Entities.OrganizerRequest;
 import br.com.geac.backend.Domain.Enums.RequestStatus;
@@ -11,5 +11,6 @@ import java.util.UUID;
 @Repository
 public interface OrganizerRequestRepository extends JpaRepository<OrganizerRequest, Integer> {
     List<OrganizerRequest> findAllByStatus(RequestStatus status);
+
     boolean existsByUserIdAndOrganizerIdAndStatus(UUID userId, Integer organizerId, RequestStatus status);
 }

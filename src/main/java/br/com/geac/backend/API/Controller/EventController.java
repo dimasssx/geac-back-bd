@@ -1,8 +1,8 @@
 package br.com.geac.backend.API.Controller;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
-import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.Services.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class EventController {
     private final EventService eventService;
 
-    @PostMapping(   "/create")
+    @PostMapping("/create")
     @PreAuthorize("hasRole('PROFESSOR')")
     public ResponseEntity<EventResponseDTO> createEvent(@RequestBody @Valid EventRequestDTO dto) {
         EventResponseDTO response = eventService.createEvent(dto);
@@ -39,7 +39,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @PatchMapping ("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable UUID id, @RequestBody @Valid EventPatchRequestDTO dto) {
         EventResponseDTO updatedEvent = eventService.patchEvent(id, dto);

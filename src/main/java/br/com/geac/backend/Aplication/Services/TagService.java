@@ -4,11 +4,8 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.TagResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.TagRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.TagMapper;
 import br.com.geac.backend.Domain.Entities.Tag;
-import br.com.geac.backend.Repositories.TagRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
+import br.com.geac.backend.Infrastructure.Repositories.TagRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +19,15 @@ public class TagService {
     private final TagMapper mapper;
 
     @Transactional
-    public  TagResponseDTO createTag(TagRequestDTO dto) {
+    public TagResponseDTO createTag(TagRequestDTO dto) {
 
         var saving = mapper.toEntity(dto);
         return mapper.toDTO(tagRepository.save(saving)); // se der erro é a constraint do banco
     }
 
     public TagResponseDTO getById(Integer id) {
-            var tag = getTagOrThrowBadRequest(id);
-            return mapper.toDTO(tag);
+        var tag = getTagOrThrowBadRequest(id);
+        return mapper.toDTO(tag);
     }
 
     public List<TagResponseDTO> getAll() {

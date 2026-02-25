@@ -1,6 +1,8 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
@@ -17,9 +19,9 @@ public record EventPatchRequestDTO(
         @Future(message = "A data de término deve ser no futuro")
         LocalDateTime endTime,
 
-        @Positive( message = "A carga horária deve ser de no mínimo 1 hora")
+        @Positive(message = "A carga horária deve ser de no mínimo 1 hora")
         Integer workloadHours,
-        @Positive( message = "A capacidade deve ser de no mínimo 1 pessoa")
+        @Positive(message = "A capacidade deve ser de no mínimo 1 pessoa")
         Integer maxCapacity,
 
         Integer categoryId,

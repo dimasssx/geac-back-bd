@@ -11,7 +11,7 @@ public record EventRequestDTO(
         String title,
         @NotBlank(message = "A descrição é obrigatória")
         String description,
-        @URL(message = "O link online deve ser uma URL válida")
+        @URL(message = "O link online deve ser uma URL válida") @Null
         String onlineLink,
         @NotNull(message = "A data de início é obrigatória")
         @Future(message = "A data de início deve ser no futuro")

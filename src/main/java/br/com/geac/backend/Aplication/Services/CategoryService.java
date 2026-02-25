@@ -5,7 +5,7 @@ import br.com.geac.backend.Aplication.DTOs.Request.CategoryPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.CategoryRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.CategoryMapper;
 import br.com.geac.backend.Domain.Entities.Category;
-import br.com.geac.backend.Repositories.CategoryRepository;
+import br.com.geac.backend.Infrastructure.Repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

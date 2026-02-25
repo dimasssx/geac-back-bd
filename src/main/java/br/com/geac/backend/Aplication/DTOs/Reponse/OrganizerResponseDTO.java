@@ -4,4 +4,5 @@ public record OrganizerResponseDTO(
         Integer id,
         String name,
         String contactEmail
-) {}
+) {
+}

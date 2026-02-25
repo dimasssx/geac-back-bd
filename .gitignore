@@ -13,7 +13,8 @@ local.properties
 .settings/
 .loadpath
 .recommenders
-
+.env
+.env.*
 # External tool builders
 .externalToolBuilders/
 

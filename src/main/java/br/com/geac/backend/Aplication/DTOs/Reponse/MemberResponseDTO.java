@@ -8,4 +8,5 @@ public record MemberResponseDTO(
         String name,
         String email,
         LocalDateTime joinedAt
-) {}
+) {
+}

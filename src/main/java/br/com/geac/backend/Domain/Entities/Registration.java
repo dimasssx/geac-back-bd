@@ -33,4 +33,6 @@ public class Registration {
 
     @Column(length = 20)
     private String status;
+
+    private boolean notified = false;
 }

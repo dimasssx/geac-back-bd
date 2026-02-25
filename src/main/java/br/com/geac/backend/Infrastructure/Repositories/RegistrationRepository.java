@@ -1,4 +1,4 @@
-package br.com.geac.backend.Repositories;
+package br.com.geac.backend.Infrastructure.Repositories;
 
 import br.com.geac.backend.Domain.Entities.Registration;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +30,8 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
             @Param("userIds") List<UUID> userIds,
             @Param("attended") boolean attended
     );
+
+    List<Registration> findByEventIdAndNotifiedIsFalse(UUID eventId, boolean notified);
+
+    List<Registration> findByEventIdAndNotified(UUID eventId, boolean notified);
 }

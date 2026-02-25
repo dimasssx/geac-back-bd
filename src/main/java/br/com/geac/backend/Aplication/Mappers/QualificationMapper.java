@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface QualificationMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target="speaker", ignore = true)
+    @Mapping(target = "speaker", ignore = true)
     Qualification toEntity(QualificationRequestDTO dto);
 
     QualificationResponseDTO toDTO(Qualification entity);

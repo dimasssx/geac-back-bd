@@ -2,26 +2,31 @@ package br.com.geac.backend.Aplication.Services;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.RegistrationResponseDTO;
 import br.com.geac.backend.Domain.Entities.Event;
+import br.com.geac.backend.Domain.Entities.Notification;
 import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
-import br.com.geac.backend.Repositories.EventRepository;
-import br.com.geac.backend.Repositories.RegistrationRepository;
+import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Infrastructure.Repositories.EventRepository;
+import br.com.geac.backend.Infrastructure.Repositories.RegistrationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import br.com.geac.backend.Domain.Exceptions.ConflictException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
     private final EventRepository eventRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void markAttendanceInBulk(UUID eventId, List<UUID> userIds, boolean attended) {
@@ -46,10 +51,10 @@ public class RegistrationService {
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado."));
 
         // 2. Valida se quem está pedindo a lista é o organizador do evento
-        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!event.getOrganizer().getId().equals(loggedUser.getId())) {
-            throw new AccessDeniedException("Acesso negado: Você não pode ver a lista de presença de um evento que não organiza.");
-        }
+//        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        if (!event.getOrganizer().getId().equals(loggedUser.getId())) {
+//            throw new AccessDeniedException("Acesso negado: Você não pode ver a lista de presença de um evento que não organiza.");
+//        }
 
         // 3. Busca as inscrições e converte para DTO
         List<Registration> registrations = registrationRepository.findByEventId(eventId);
@@ -64,7 +69,9 @@ public class RegistrationService {
                 ))
                 .toList();
     }
-
+    public List<Registration> getUnotifiedRegistrationsById(UUID eventId) {
+        return registrationRepository.findByEventIdAndNotified(eventId,false);
+    }
     @Transactional
     public void registerToEvent(UUID eventId) {
 
@@ -91,6 +98,16 @@ public class RegistrationService {
         registration.setEvent(event);
         registration.setStatus("CONFIRMED");
 
+        Notification notification = new Notification();
+        notification.setUser(loggedUser);
+        notification.setMessage("Congrats, your registration was sucessfull");
+        notification.setRead(false);
+        notification.setType("SUBSCRIBE");
+        notification.setEvent(event);
+        notification.setCreatedAt(LocalDateTime.now());
+
+        notificationService.notify(notification);
+        log.info("Registrado com sucesso"+ notification.getMessage());
         registrationRepository.save(registration);
     }
 
@@ -109,7 +126,20 @@ public class RegistrationService {
         }
 
         // 4. Deleta a inscrição do banco (liberando a vaga automaticamente)
+
+//        Notification notification = new Notification(); TODO
+//        notification.setUser(loggedUser);
+//        notification.setMessage("Congrats, your registration was sucessfull");
+//        notification.setRead(false);
+//        notification.setType("SUBSCRIBE");
+//        notification.setEvent(event);
+//        notification.setCreatedAt(LocalDateTime.now());
+//
+//        notificationService.notify(notification);
         registrationRepository.delete(registration);
     }
 
+    public void saveAll(List<Registration> registrations) {
+        registrationRepository.saveAll(registrations);
+    }
 }

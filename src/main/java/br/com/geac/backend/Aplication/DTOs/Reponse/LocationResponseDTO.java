@@ -13,5 +13,5 @@ public record LocationResponseDTO (
         String zipCode,
         Campus campus,
         String referencePoint,
-        Integer capacity){
+        Integer capacity) {
 }

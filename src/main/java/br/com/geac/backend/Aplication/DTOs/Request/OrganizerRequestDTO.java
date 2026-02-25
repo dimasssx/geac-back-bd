@@ -12,4 +12,5 @@ public record OrganizerRequestDTO(
         @NotBlank(message = "O email de contato é obrigatório")
         @Email(message = "Formato de email inválido")
         String contactEmail
-) {}
+) {
+}

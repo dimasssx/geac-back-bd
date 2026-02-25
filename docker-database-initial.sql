@@ -123,6 +123,18 @@ CREATE TABLE organizer_requests
     resolved_at   TIMESTAMP
 );
 
+CREATE TABLE notifications
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    event_id   UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    status     BOOLEAN     DEFAULT FALSE,
+    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL')),
+    title      VARCHAR(255),
+    message    TEXT,
+    created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
@@ -166,6 +178,16 @@ VALUES ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
 
 
 INSERT INTO categories (name, description)
+VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
+       ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
+       ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
+       ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
+       ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
+       ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
+       ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
+       ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
+       ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
+       ('outro', 'Categorias que não se enquadram nas definições anteriores.');
 VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
        ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
        ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),

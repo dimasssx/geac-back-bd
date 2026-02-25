@@ -5,9 +5,8 @@ import br.com.geac.backend.Aplication.DTOs.Request.LocationPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.LocationRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.LocationMapper;
 import br.com.geac.backend.Domain.Entities.Location;
-import br.com.geac.backend.Repositories.LocationRepository;
+import br.com.geac.backend.Infrastructure.Repositories.LocationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

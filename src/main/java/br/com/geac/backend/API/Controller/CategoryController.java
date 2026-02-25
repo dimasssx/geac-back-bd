@@ -1,8 +1,8 @@
 package br.com.geac.backend.API.Controller;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.CategoryResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.CategoryPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.CategoryRequestDTO;
-import br.com.geac.backend.Aplication.DTOs.Reponse.CategoryResponseDTO;
 import br.com.geac.backend.Aplication.Services.CategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -26,9 +26,10 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable @Positive Integer id ) {
+    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable @Positive Integer id) {
         return ResponseEntity.ok(service.getCategoryById(id));
     }
+
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAll() {
         return ResponseEntity.ok(service.getAllCategory());
@@ -38,6 +39,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponseDTO> updateCategory(@Valid @RequestBody CategoryPatchRequestDTO dto, @PathVariable @Positive Integer id) {
         return ResponseEntity.ok(service.updateCategory(id, dto));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable @Positive Integer id) {
         service.deleteCategory(id);

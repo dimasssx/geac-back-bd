@@ -8,7 +8,7 @@ import br.com.geac.backend.Aplication.Mappers.QualificationMapper;
 import br.com.geac.backend.Aplication.Mappers.SpeakerMapper;
 import br.com.geac.backend.Domain.Entities.Qualification;
 import br.com.geac.backend.Domain.Entities.Speaker;
-import br.com.geac.backend.Repositories.SpeakerRepository;
+import br.com.geac.backend.Infrastructure.Repositories.SpeakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +77,7 @@ public class SpeakerService {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
     }
+
     private boolean qualificationsChanged(Speaker speaker, Set<QualificationRequestDTO> dtos) {
         if (speaker.getQualifications().size() != dtos.size()) {
             return true;
@@ -91,6 +92,7 @@ public class SpeakerService {
                                 )
                 );
     }
+
     private Set<Qualification> resolveQualifications(Set<QualificationRequestDTO> dtos) {
         return dtos
                 .stream()

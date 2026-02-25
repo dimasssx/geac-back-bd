@@ -1,10 +1,8 @@
 package br.com.geac.backend.Aplication.Mappers;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.SpeakerResponseDTO;
-import br.com.geac.backend.Aplication.DTOs.Request.LocationPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.SpeakerPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.SpeakerRequestDTO;
-import br.com.geac.backend.Domain.Entities.Location;
 import br.com.geac.backend.Domain.Entities.Speaker;
 import org.mapstruct.*;
 

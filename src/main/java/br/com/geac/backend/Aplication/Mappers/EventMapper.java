@@ -20,7 +20,6 @@ public interface EventMapper {
     @Mapping(target = "reqId", source = "requirement.id")
     @Mapping(target = "requirementDescription", source = "event", qualifiedByName = "mapRequirementDescription")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
-
     EventResponseDTO toResponseDTO(Event event);
 
     @Named("mapRequirementDescription")
@@ -30,6 +29,7 @@ public interface EventMapper {
         }
         return List.of(event.getRequirement().getDescription());
     }
+
     @Named("mapSpeakers")
     default List<String> mapSpeakers(Event event) {
         if (event.getSpeakers() == null) return List.of();
@@ -37,6 +37,7 @@ public interface EventMapper {
                 .map(Speaker::getName)
                 .toList();
     }
+
     default List<String> mapTags(Set<Tag> tags) {
         if (tags == null) return List.of();
         return tags.stream().map(Tag::getName).toList();

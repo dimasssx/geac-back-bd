@@ -34,6 +34,7 @@ public class SpeakerController {
 
         return ResponseEntity.ok(service.getAll());
     }
+
     @PatchMapping("/{id}")
     public ResponseEntity<SpeakerResponseDTO> updateSpeaker(@PathVariable @Positive Integer id,
                                                             @RequestBody @Valid SpeakerPatchRequestDTO dto) {

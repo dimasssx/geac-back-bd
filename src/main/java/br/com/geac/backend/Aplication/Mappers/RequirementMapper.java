@@ -9,5 +9,6 @@ import org.mapstruct.Mapper;
 public interface RequirementMapper {
 
     EventRequirement toEntity(RequirementRequestDTO dto);
+
     RequirementsResponseDTO toDTO(EventRequirement entity);
 }
