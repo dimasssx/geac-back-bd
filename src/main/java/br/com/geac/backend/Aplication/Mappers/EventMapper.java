@@ -1,8 +1,10 @@
 package br.com.geac.backend.Aplication.Mappers;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
+import br.com.geac.backend.Aplication.DTOs.Reponse.RequirementsResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Domain.Entities.Event;
+import br.com.geac.backend.Domain.Entities.EventRequirement;
 import br.com.geac.backend.Domain.Entities.Speaker;
 import br.com.geac.backend.Domain.Entities.Tag;
 import org.mapstruct.*;
@@ -17,18 +19,10 @@ public interface EventMapper {
     @Mapping(target = "categoryName", source = "category.name")
     @Mapping(target = "organizerName", source = "organizer.name")
     @Mapping(target = "organizerEmail", source = "organizer.email")
-    @Mapping(target = "reqId", source = "requirement.id")
-    @Mapping(target = "requirementDescription", source = "event", qualifiedByName = "mapRequirementDescription")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
     EventResponseDTO toResponseDTO(Event event);
 
-    @Named("mapRequirementDescription")
-    default List<String> mapRequirementDescription(Event event) {
-        if (event.getRequirement() == null || event.getRequirement().getDescription() == null) {
-            return List.of();
-        }
-        return List.of(event.getRequirement().getDescription());
-    }
+    RequirementsResponseDTO toRequirementDTO(EventRequirement eventRequirement);
 
     @Named("mapSpeakers")
     default List<String> mapSpeakers(Event event) {
@@ -49,7 +43,7 @@ public interface EventMapper {
     @Mapping(target = "speakers", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "requirement", ignore = true)
+    @Mapping(target = "requirements", ignore = true)
     @Mapping(target = "location", ignore = true)
     void updateEventFromDto(EventPatchRequestDTO dto, @MappingTarget Event entity);
 

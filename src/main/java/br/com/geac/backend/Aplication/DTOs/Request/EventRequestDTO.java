@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public record EventRequestDTO(
@@ -32,8 +33,8 @@ public record EventRequestDTO(
         @NotNull(message = "O ID da categoria é obrigatório") //TODO: Verificar se vai ser 1 ou varias
         Integer categoryId,
 
-        @NotNull(message = "O requisito do evento é obrigatório") //TODO: Verificar se vai ser 1 ou varias
-        Integer requirementId,
+        @NotNull(message = "A lista de requisitos do evento é obrigatório")
+        List<Integer> requirementIds,
 
         @NotNull
         @Size(min = 1, message = "O evento deve ter pelo menos uma tag")

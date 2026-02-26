@@ -28,8 +28,7 @@ public record EventResponseDTO(
         String organizerName,
         String organizerEmail,
 
-        Integer reqId,
-        List<String> requirementDescription,
+        List<RequirementsResponseDTO> requirements,
 
         List<String> tags,
         List<String> speakers,

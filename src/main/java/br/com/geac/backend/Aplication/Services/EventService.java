@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +45,6 @@ public class EventService {
             location = locationRepository.findById(dto.locationId())
                     .orElseThrow(() -> new RuntimeException("Local não encontrado com ID: " + dto.locationId()));
         }
-        EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
-                .orElseThrow(() -> new RuntimeException("Requisito não encontrado com ID: " + dto.requirementId()));
 
         Event event = new Event();
         event.setTitle(dto.title());
@@ -59,12 +59,26 @@ public class EventService {
         event.setOrganizer(organizer);
         event.setCategory(category);
         event.setLocation(location);
-        event.setRequirement(requirement);
+        event.setRequirements(resolveRequirements(dto.requirementIds()));
         event.setTags(resolveTags(dto.tags()));
         event.setSpeakers(resolveSpeakers(dto.speakers()));
         Event saved = eventRepository.save(event);
 
         return eventMapper.toResponseDTO(saved);
+    }
+
+    private Set<EventRequirement> resolveRequirements(Collection<Integer> requirementIds) {
+        if (requirementIds == null || requirementIds.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        List<EventRequirement> requirements = eventRequirementRepository.findAllById(requirementIds);
+
+        if (requirements.size() != requirementIds.size()) {
+            throw new RuntimeException("Um ou mais requisitos informados não foram encontrados no sistema.");
+        }
+
+        return new HashSet<>(requirements);
     }
 
 
@@ -88,10 +102,8 @@ public class EventService {
 
         if (dto.speakers() != null) event.setSpeakers(resolveSpeakers(dto.speakers()));
         if (dto.tags() != null) event.setTags(resolveTags(dto.tags()));
-        if (dto.requirementId() != null) {
-            EventRequirement requirement = eventRequirementRepository.findById(dto.requirementId())
-                    .orElseThrow(() -> new RuntimeException("Requirement não encontrado com ID: " + dto.requirementId()));
-            event.setRequirement(requirement);
+        if (dto.requirementIds() != null) {
+            event.setRequirements(resolveRequirements(dto.requirementIds()));
         }
         // por enquanto so tem 1 categoria, mas se tiver mais de 1 no futuro, tem que resolver a mesma coisa dos speakers e tags
         if (dto.categoryId() != null) {

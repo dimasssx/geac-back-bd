@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{baseUrl}}/events/e153c21a-d628-46ef-b838-b66d4758b966"
+  url: "{{baseUrl}}/events/844dda77-7916-44a6-a90b-7a76236904fa"
   body:
     type: json
     data: |-
@@ -15,7 +15,12 @@ http:
         "startTime": "2026-12-30T23:59:59",
         "endTime": "2026-12-31T23:59:59",
         "categoryId": 1,
-        "requirementId": 1,
+        "requirementIds": [
+          1,
+          2,
+          3,
+          4
+        ],
         "locationId": 1,
         "workloadHours": 2,
         "maxCapacity": 1,

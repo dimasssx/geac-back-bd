@@ -57,9 +57,13 @@ public class Event {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "requirement_id", nullable = false)
-    private EventRequirement requirement;
+    @ManyToMany
+    @JoinTable(
+        name = "event_requirements",
+        joinColumns = @JoinColumn(name = "event_id"),
+        inverseJoinColumns = @JoinColumn(name = "requirement_id")
+    )
+    private Set<EventRequirement> requirements = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

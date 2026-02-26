@@ -25,7 +25,7 @@ public record EventPatchRequestDTO(
         Integer maxCapacity,
 
         Integer categoryId,
-        Integer requirementId,
+        Set<Integer> requirementIds,
         Set<Integer> tags,
         Integer locationId,
         Set<Integer> speakers

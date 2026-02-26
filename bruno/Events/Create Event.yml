@@ -15,7 +15,11 @@ http:
         "startTime": "2026-12-30T23:59:59",
         "endTime": "2026-12-31T23:59:59",
         "categoryId": 1,
-        "requirementId": 1,
+        "requirementIds": [
+          1,
+          2,
+          3
+        ],
         "locationId": 1,
         "workloadHours": 2,
         "maxCapacity": 1,
