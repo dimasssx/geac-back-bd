@@ -5,10 +5,10 @@ import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.EventMapper;
 import br.com.geac.backend.Domain.Entities.*;
+import br.com.geac.backend.Domain.Enums.Role;
 import br.com.geac.backend.Domain.Exceptions.BadRequestException;
 import br.com.geac.backend.Domain.Exceptions.CategoryNotFoundException;
 import br.com.geac.backend.Domain.Exceptions.LocationNotFoundException;
-import br.com.geac.backend.Domain.Exceptions.RequirementNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,12 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +58,7 @@ public class EventService {
         }
 
         var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
-        if(!organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())){
+        if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
             throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
         }
 
