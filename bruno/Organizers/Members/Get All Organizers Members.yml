@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/organizers/1/members"
+  url: "{{baseUrl}}/organizers/a1111111-1111-1111-1111-111111111111/members"
   auth: inherit
 
 settings:

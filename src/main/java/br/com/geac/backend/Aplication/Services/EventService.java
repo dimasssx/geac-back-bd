@@ -136,7 +136,7 @@ public class EventService {
                 throw new AccessDeniedException("Apenas organizadores e administradores podem editar eventos.");
             }
             var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
-            if(!organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())){
+            if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
                 throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
             }
             event.setOrganizer(organization);
