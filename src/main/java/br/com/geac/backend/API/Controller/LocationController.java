@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,13 +38,13 @@ public class LocationController {
     }
 
     @PatchMapping("/{id}")
-    // @PreAuthorize("hasRole('PROFESSOR') or hasRole('ADMIN')")
+     @PreAuthorize("hasRole('ORGANIZER') or hasRole('ADMIN')")
     public ResponseEntity<LocationResponseDTO> updateLocation(@PathVariable @Positive Integer id, @RequestBody @Valid LocationPatchRequestDTO dto) {
         return ResponseEntity.ok(service.updateLocation(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable @Positive Integer id) {
         service.deleteLocation(id);
         return ResponseEntity.noContent().build();

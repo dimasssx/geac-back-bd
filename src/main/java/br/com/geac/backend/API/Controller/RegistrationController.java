@@ -20,7 +20,7 @@ public class RegistrationController {
     private final RegistrationService registrationService;
 
     @PutMapping("/{eventId}/attendance/bulk")
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ORGANIZER', 'ADMIN')")
     public ResponseEntity<Void> markAttendanceInBulk(
             @PathVariable UUID eventId,
             @RequestBody @Valid PresenceRequestDTO request) {
@@ -31,7 +31,7 @@ public class RegistrationController {
     }
 
     @GetMapping("/event/{eventId}")
-    @PreAuthorize("hasRole('PROFESSOR')")
+    @PreAuthorize("hasAnyRole('PROFESSOR', 'ORGANIZER', 'ADMIN')")
     public ResponseEntity<List<RegistrationResponseDTO>> getRegistrationsByEvent(@PathVariable UUID eventId) {
 
         List<RegistrationResponseDTO> list = registrationService.getRegistrationsByEvent(eventId);

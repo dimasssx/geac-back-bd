@@ -105,6 +105,7 @@ public class EventService {
     public EventResponseDTO patchEvent(UUID id, EventPatchRequestDTO dto) {
 
         Event event = getEventByIdOrThrow(id);
+        validateEventOwnership(event);
         eventMapper.updateEventFromDto(dto, event);
 
         if (dto.speakers() != null) event.setSpeakers(resolveSpeakers(dto.speakers()));
@@ -149,9 +150,20 @@ public class EventService {
         }
     }
 
+    private void validateEventOwnership(Event event) {
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loggedUser.getRole() == Role.ADMIN) return; // Admin pode tudo
+
+        boolean isMember = organizerMemberRepository.existsByOrganizerIdAndUserId(event.getOrganizer().getId(), loggedUser.getId());
+        if (!isMember) {
+            throw new AccessDeniedException("Você não pertence à organização dona deste evento.");
+        }
+    }
+
     @Transactional
     public void deleteEvent(UUID id) {
         Event event = getEventByIdOrThrow(id);
+        validateEventOwnership(event);
         eventRepository.delete(event);
     }
 

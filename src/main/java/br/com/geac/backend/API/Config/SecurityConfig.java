@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final SecurityFilter securityFilter;
@@ -41,9 +43,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/organizers", "/organizers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/organizers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/organizers/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/organizers/*/members").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/organizers/*/members/**").hasRole("ADMIN")
+
+                        //solicitações: exclusiva de professor/organizer/admin
+                        .requestMatchers(HttpMethod.PUT, "/registrations/*/attendance/bulk").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/registrations/event/*").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
+
                         //solicitacoes: usuario comum pode apenas CRIAR a solicitação
                         .requestMatchers(HttpMethod.POST, "/organizer-requests").authenticated()
                         .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements", "/organizers", "/organizers/**").authenticated()
+
+                        //solicitações: ADMIN e organizer
                         .requestMatchers(HttpMethod.POST, "/categories","/events","/events/**")  .hasAnyRole("ADMIN","ORGANIZER")
                         .requestMatchers(HttpMethod.PATCH, "/categories","/events") .hasAnyRole("ADMIN","ORGANIZER")
                         .requestMatchers(HttpMethod.DELETE, "/categories","/events") .hasAnyRole("ADMIN","ORGANIZER")

@@ -22,7 +22,7 @@ public class CategoryController {
     private final CategoryService service;
 
     @PostMapping()
-    @PreAuthorize("hasRole= ('ADMIN') or ('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createCategory(dto));
     }
@@ -38,13 +38,13 @@ public class CategoryController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole= ('ADMIN') or ('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
     public ResponseEntity<CategoryResponseDTO> updateCategory(@Valid @RequestBody CategoryPatchRequestDTO dto, @PathVariable @Positive Integer id) {
         return ResponseEntity.ok(service.updateCategory(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole= ('ADMIN') or ('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
     public ResponseEntity<Void> delete(@PathVariable @Positive Integer id) {
         service.deleteCategory(id);
         return ResponseEntity.noContent().build();
