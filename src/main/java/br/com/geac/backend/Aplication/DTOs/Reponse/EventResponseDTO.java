@@ -34,7 +34,9 @@ public record EventResponseDTO(
         List<String> speakers,
 
         Integer registeredCount,
-        Boolean isRegistered
+        Boolean isRegistered,
+        String userRegistrationStatus,
+        Boolean userAttended
 
 ) {
 }

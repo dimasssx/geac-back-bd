@@ -2,6 +2,7 @@ package br.com.geac.backend.Aplication.Mappers;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Reponse.RequirementsResponseDTO;
+import br.com.geac.backend.Aplication.DTOs.Reponse.UserRegistrationContextResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Domain.Entities.Event;
@@ -21,8 +22,11 @@ public interface EventMapper {
     @Mapping(target = "organizerName", source = "event.organizer.name")
     @Mapping(target = "organizerEmail", source = "event.organizer.contactEmail")
     @Mapping(target = "speakers", source = "event", qualifiedByName = "mapSpeakers")
-    @Mapping(target = "isRegistered", source = "isRegistered")
-    EventResponseDTO toResponseDTO(Event event, Boolean isRegistered);
+    @Mapping(target = "status", source = "event.status")
+    @Mapping(target = "isRegistered", source = "context.isRegistered")
+    @Mapping(target = "userRegistrationStatus", source = "context.status")
+    @Mapping(target = "userAttended", source = "context.attended")
+    EventResponseDTO toResponseDTO(Event event, UserRegistrationContextResponseDTO context);
 
     RequirementsResponseDTO toRequirementDTO(EventRequirement eventRequirement);
 

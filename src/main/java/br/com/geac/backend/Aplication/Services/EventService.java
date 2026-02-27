@@ -1,6 +1,7 @@
 package br.com.geac.backend.Aplication.Services;
 
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
+import br.com.geac.backend.Aplication.DTOs.Reponse.UserRegistrationContextResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.EventMapper;
@@ -69,7 +70,7 @@ public class EventService {
         event.setTags(resolveTags(dto.tags()));
         event.setSpeakers(resolveSpeakers(dto.speakers()));
         Event saved = eventRepository.save(event);
-        return eventMapper.toResponseDTO(saved, false);
+        return eventMapper.toResponseDTO(saved, null);
     }
 
     private Set<EventRequirement> resolveRequirements(Collection<Integer> requirementIds) {
@@ -91,14 +92,14 @@ public class EventService {
     public List<EventResponseDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
         return events.stream()
-                .map(event -> eventMapper.toResponseDTO(event, checkUserRegistration(event.getId())))
+                .map(event -> eventMapper.toResponseDTO(event, getUserRegistrationContext(event.getId())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
         Event event = getEventByIdOrThrow(id);
-        return eventMapper.toResponseDTO(event, checkUserRegistration(event.getId()));
+        return eventMapper.toResponseDTO(event, getUserRegistrationContext(event.getId()));
     }
 
     @Transactional
@@ -132,21 +133,26 @@ public class EventService {
             }
             event.setOrganizer(organization);
         }
-        return eventMapper.toResponseDTO(eventRepository.save(event), checkUserRegistration(event.getId()));
+        return eventMapper.toResponseDTO(eventRepository.save(event), getUserRegistrationContext(event.getId()));
 
     }
 
-    private Boolean checkUserRegistration(UUID eventId) {
+        private UserRegistrationContextResponseDTO getUserRegistrationContext(UUID eventId) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            return false;
+            return new UserRegistrationContextResponseDTO(false, null, false);
         }
         try {
             User user = (User) authentication.getPrincipal();
-            return registrationRepository.existsByUserIdAndEventId(user.getId(), eventId);
+            var registrationOpt = registrationRepository.findByUserIdAndEventId(user.getId(), eventId);
+            if (registrationOpt.isPresent()) {
+                Registration reg = registrationOpt.get();
+                return new UserRegistrationContextResponseDTO(true, reg.getStatus(), reg.getAttended());
+            }
         } catch (ClassCastException e) {
-            return false; // Prevenção caso o principal não seja do tipo User
+            // Prevenção caso o principal não seja do tipo User
         }
+        return new UserRegistrationContextResponseDTO(false, null, false);
     }
 
     @Transactional
