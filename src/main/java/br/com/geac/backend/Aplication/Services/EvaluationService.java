@@ -4,6 +4,7 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.EvaluationResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EvaluationRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.EvaluationMapper;
 import br.com.geac.backend.Domain.Entities.Evaluation;
+import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
 import br.com.geac.backend.Domain.Enums.EventStatus;
 import br.com.geac.backend.Domain.Exceptions.BadRequestException;
@@ -31,10 +32,10 @@ public class EvaluationService {
     private final EvaluationMapper mapper;
     //TODO: EDITAR E REMOVER
 
-    public EvaluationResponseDTO createEvaliation(EvaluationRequestDTO dto, User authenticatedUser) {
+    public EvaluationResponseDTO createEvaluation(EvaluationRequestDTO dto, User authenticatedUser) {
 
-        var registration = registrationRepository.findById(dto.registrationId())
-                .orElseThrow(() -> new RegistrationNotFoundException("Inscrição não encontrada"));
+        Registration registration = registrationRepository.findByUserIdAndEventId(authenticatedUser.getId(),dto.eventId())
+                .orElseThrow(()-> new RegistrationNotFoundException("A inscrição não foi encontrada"));
         if (!registration.getUser().getId().equals(authenticatedUser.getId())) {
             throw new BadRequestException("Você está tentando avaliar uma inscrição que nao é sua");
         }
@@ -55,9 +56,8 @@ public class EvaluationService {
         evaluation.setRating(dto.rating());
         var saved = evaluationRepository.save(evaluation);
 
-        log.info("Avaliação salva com sucesso id:" + evaluation.getId());
-        log.info("Username: "+ authenticatedUser.getUsername());
-        log.info("Com o comentário: " + evaluation.getComment());
+        log.info("Avaliação {} criada pelo usuário {} para o evento {}",
+                saved.getId(), authenticatedUser.getUsername(), dto.eventId());
         return mapper.toDTO(saved);
 
     }

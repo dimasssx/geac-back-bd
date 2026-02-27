@@ -22,7 +22,7 @@ public class EvaluationController {
     public ResponseEntity<EvaluationResponseDTO> save(@RequestBody EvaluationRequestDTO evaluation,
                                                       @AuthenticationPrincipal User authenticatedUser){
 
-        return  ResponseEntity.status(HttpStatus.CREATED).body(evaluationService.createEvaliation(evaluation,authenticatedUser));
+        return  ResponseEntity.status(HttpStatus.CREATED).body(evaluationService.createEvaluation(evaluation,authenticatedUser));
     }
 
     @GetMapping("/{id}")

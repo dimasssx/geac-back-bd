@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record EvaluationRequestDTO(
         @NotNull(message = "Id da inscrição é obrigatório")
-        UUID registrationId,
+        UUID eventId,
         @Size(min = 4,max = 1000,message = "Comentário deve ter entre 4 e 1000 caracteres")
         String comment,
         @NotNull(message = "Rating é obrigatório")
