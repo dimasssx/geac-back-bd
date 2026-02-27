@@ -5,6 +5,7 @@ import br.com.geac.backend.Domain.Entities.Event;
 import br.com.geac.backend.Domain.Entities.Notification;
 import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
+import br.com.geac.backend.Domain.Enums.EventStatus;
 import br.com.geac.backend.Domain.Exceptions.*;
 import br.com.geac.backend.Infrastructure.Repositories.EventRepository;
 import br.com.geac.backend.Infrastructure.Repositories.RegistrationRepository;
@@ -57,7 +58,7 @@ public class RegistrationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Evento não encontrado."));
 
-        validateOrganizerAccess(event);
+//TODO        validateOrganizerAccess(event);
 
         // 3. Busca as inscrições e converte para DTO
         List<Registration> registrations = registrationRepository.findByEventId(eventId);
@@ -93,6 +94,9 @@ public class RegistrationService {
 
         if (event.getRegisteredCount() >= event.getMaxCapacity()) {
             throw new EventMaxCapacityAchievedException("Desculpe, este evento já atingiu a capacidade máxima de " + event.getMaxCapacity() + " participantes.");
+        }
+        if((event.getStatus() != EventStatus.ACTIVE) && (event.getStatus() != EventStatus.UPCOMING)) {
+            throw new EventNotAvailableException("O Evento que voce está tentando se inscrever ainda nao está disponivel ou já foi encerrado");
         }
 
         event.setRegisteredCount(event.getRegisteredCount() + 1);
@@ -143,7 +147,7 @@ public class RegistrationService {
         notification.setEvent(event);
         notification.setTitle("Inscrição Cancelada");
         notification.setMessage("Sua inscrição no evento '" + event.getTitle() + "' foi cancelada com sucesso. Uma vaga foi liberada.");
-        notification.setType("UNSUBSCRIBE");
+        notification.setType("CANCEL");
         notification.setRead(false);
         notification.setCreatedAt(LocalDateTime.now());
 

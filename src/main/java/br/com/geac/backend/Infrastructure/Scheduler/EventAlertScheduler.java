@@ -55,12 +55,12 @@ public class EventAlertScheduler {
     }
 
     @Scheduled(cron = "0 */30 * * * *")
-    @Transactional
     public void updateEventStatus() {  //dava pra fazer direto nno banco mas deixa ai, n vai pesar acho
 
         LocalDateTime now = LocalDateTime.now();
         List<Event> endEvents = eventService.getPastEvents(now);
 
+        //todo:verificar finalizado ou inprogress
         if(!endEvents.isEmpty()) {
             endEvents.forEach(event -> event.setStatus(EventStatus.COMPLETED));
             eventRepository.saveAll(endEvents);
