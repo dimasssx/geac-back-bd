@@ -13,7 +13,6 @@ import java.util.UUID;
 public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findAllByStartTimeBetween(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
 
-    boolean existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(String title, UUID organizerId, LocalDateTime startTime);
 
     List<Event> findAllByStartTimeBeforeAndStatusNot(LocalDateTime startTimeBefore, EventStatus status);
 }
