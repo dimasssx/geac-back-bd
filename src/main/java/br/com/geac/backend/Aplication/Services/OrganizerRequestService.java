@@ -5,7 +5,7 @@ import br.com.geac.backend.Aplication.DTOs.Request.CreateOrganizerRequestDTO;
 import br.com.geac.backend.Domain.Entities.*;
 import br.com.geac.backend.Domain.Enums.RequestStatus;
 import br.com.geac.backend.Domain.Enums.Role;
-import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Domain.Exceptions.*;
 import br.com.geac.backend.Infrastructure.Repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,6 @@ public class OrganizerRequestService {
     private final OrganizerMemberRepository memberRepository;
     private final UserRepository userRepository;
     private final OrganizerRepository organizerRepository;
-    private final EventRepository eventRepository; //TODO testar notificação
     private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
@@ -39,9 +38,10 @@ public class OrganizerRequestService {
     }
 
     @Transactional
-    public void approveRequest(Integer requestId) {
+    public void approveRequest(Integer requestId) { // TODO:DEVERIA USAR ADDMEMBER de organizer member
         OrganizerRequest request = findRequestOrThrow(requestId);
-        var user = userRepository.findById(request.getUser().getId()).orElseThrow();
+        var user = userRepository.findById(request.getUser().getId())
+                .orElseThrow(()->new UserNotFoundException("Usuário nao encontrado"));
 
         request.setStatus(RequestStatus.APPROVED);
         request.setResolvedAt(LocalDateTime.now());
@@ -56,7 +56,7 @@ public class OrganizerRequestService {
             newMember.setOrganizer(request.getOrganizer());
             newMember.setUser(request.getUser());
             memberRepository.save(newMember);
-            if (user.getRole().equals(Role.STUDENT)) {
+            if (user.getRole().equals(Role.STUDENT) || user.getRole().equals(Role.PROFESSOR)) {
                 user.setRole(Role.ORGANIZER);
                 userRepository.save(user);
             }
@@ -65,10 +65,9 @@ public class OrganizerRequestService {
             notif.setUser(user);
             notif.setTitle("Solicitação Aprovada!");
             notif.setMessage("Parabéns! Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' foi aceita. Você agora é um organizador.");
-            notif.setType("CANCEL");
+            notif.setType("APPROVED");
             notif.setRead(false);
             notif.setCreatedAt(LocalDateTime.now());
-            notif.setEvent(eventRepository.findAll().getFirst());
             notificationService.notify(notif);
 
         }
@@ -77,26 +76,32 @@ public class OrganizerRequestService {
     @Transactional
     public void rejectRequest(Integer requestId) {
         OrganizerRequest request = findRequestOrThrow(requestId);
-
         request.setStatus(RequestStatus.REJECTED);
         request.setResolvedAt(LocalDateTime.now());
         requestRepository.save(request);
+        Notification notif = new Notification();
+        notif.setUser(request.getUser());
+        notif.setTitle("Solicitação não foi aceita!");
+        notif.setMessage("Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' não foi aceita. Fale com algum professor e tente novamente");
+        notif.setType("REJECTED");
+        notif.setRead(false);
+        notif.setCreatedAt(LocalDateTime.now());
+        notificationService.notify(notif);
     }
 
     @Transactional
     public void createRequest(CreateOrganizerRequestDTO dto) {
         if (requestRepository.existsByUserIdAndOrganizerIdAndStatus(dto.userId(), dto.organizerId(), RequestStatus.PENDING)) {
-            throw new ConflictException("Já existe uma solicitação pendente deste usuário para esta organização.");
+            throw new RequestAlreadyExists("Já existe uma solicitação pendente deste usuário para esta organização.");
         }
-
         if (memberRepository.existsByOrganizerIdAndUserId(dto.organizerId(), dto.userId())) {
-            throw new ConflictException("Usuário já é membro desta organização.");
+            throw new UserIsAlreadyOrgMember("Usuário já é membro desta organização.");
         }
 
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
         Organizer organizer = organizerRepository.findById(dto.organizerId())
-                .orElseThrow(() -> new RuntimeException("Organização não encontrada."));
+                .orElseThrow(() -> new OrganizerNotFoundExceptio("Organização não encontrada."));
 
         OrganizerRequest request = new OrganizerRequest();
         request.setUser(user);
@@ -112,11 +117,9 @@ public class OrganizerRequestService {
             adminNotif.setUser(admin);
             adminNotif.setTitle("Nova Solicitação de Organização");
             adminNotif.setMessage("O usuário " + user.getName() + " solicitou entrada na organização '" + organizer.getName() + "'. Acesse o painel para aprovar ou rejeitar.");
-            adminNotif.setType("CANCEL");
+            adminNotif.setType("REQUEST");
             adminNotif.setRead(false);
             adminNotif.setCreatedAt(LocalDateTime.now());
-//            adminNotif.setEvent(new Event());
-            adminNotif.setEvent(eventRepository.findAll().getFirst());
             notificationService.notify(adminNotif);
 
         }

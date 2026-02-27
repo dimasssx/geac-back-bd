@@ -5,6 +5,8 @@ import br.com.geac.backend.Aplication.DTOs.Request.LocationPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.LocationRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.LocationMapper;
 import br.com.geac.backend.Domain.Entities.Location;
+import br.com.geac.backend.Domain.Exceptions.LocationAlreadyExistsException;
+import br.com.geac.backend.Domain.Exceptions.LocationNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class LocationService {
     //TODO: constrain no banco para verificar unicidade
     public LocationResponseDTO createLocation(LocationRequestDTO dto) {
         if (locationRepository.existsByZipCodeAndNumberAndName(dto.zipCode(), dto.number(), dto.name())) {
-            throw new RuntimeException("Location with the same zip code,number and name already exists"); // se precisar poe reference point tbm
+            throw new LocationAlreadyExistsException("Location with the same zip code,number and name already exists"); // se precisar poe reference point tbm
         }
         var location = locationMapper.toEntity(dto);
         return locationMapper.toDto(locationRepository.save(location));
@@ -50,7 +52,7 @@ public class LocationService {
         String newName = dto.name() != null ? dto.name() : location.getName();
 
         if (locationRepository.existsByZipCodeAndNumberAndNameAndIdNot(newZipCode, newNumber, newName, id)) { // Se precisar colocar referencepoint tbm
-            throw new RuntimeException("Another location with the same zip code,number and name already exists");
+            throw new LocationAlreadyExistsException("Another location with the same zip code,number and name already exists");
         }
 
         locationMapper.updateEntityFromDTO(dto, location);
@@ -68,6 +70,6 @@ public class LocationService {
 
     private Location getLocationByIdOrThrownBadRequest(Integer id) {
         return locationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+                .orElseThrow(() -> new LocationNotFoundException("Location not found"));
     }
 }

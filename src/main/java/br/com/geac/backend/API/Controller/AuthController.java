@@ -37,13 +37,4 @@ public class AuthController {
         authService.logout();
         return ResponseEntity.noContent().build();
     }
-
-
-//    TODO: Implementar endpoint para deletar conta do usuário, apenas para ADMIN
-//    @DeleteMapping("/delete")
-//    @PreAuthorize(hasRole('ADMIN'))
-//    public ResponseEntity<Void> deleteAccount() {
-//        authService.deleteAccount();
-//        return ResponseEntity.noContent().build();
-//    }
 }

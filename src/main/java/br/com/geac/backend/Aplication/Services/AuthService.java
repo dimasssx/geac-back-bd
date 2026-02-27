@@ -21,6 +21,7 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
+    private final UserMapper userMapper;
 
     public RegisterResponseDTO registerUser(RegisterRequestDTO request) {
 
@@ -28,12 +29,12 @@ public class AuthService {
             throw new EmailAlreadyExistsException("O Email já está em uso");
         }
 
-        User user = UserMapper.INSTANCE.registerToUser(request);
+        User user = userMapper.registerToUser(request);
 
         String encriptedPass = encoder.encode(request.password());
         user.setPassword(encriptedPass);
 
-        return UserMapper.INSTANCE.userToRegisterResponse(userRepository.save(user));
+        return userMapper.userToRegisterResponse(userRepository.save(user));
     }
 
     public AuthResponseDTO login(AuthRequestDTO data) {

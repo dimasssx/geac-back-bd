@@ -4,6 +4,7 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.RequirementsResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.RequirementRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.RequirementMapper;
 import br.com.geac.backend.Domain.Entities.EventRequirement;
+import br.com.geac.backend.Domain.Exceptions.RequirementNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.EventRequirementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,6 @@ public class RequirementService {
 
     private EventRequirement getRequirementByIdOrThrowBadRequest(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Requirement not found"));
+                .orElseThrow(() -> new RequirementNotFoundException("Requirement not found"));
     }
 }

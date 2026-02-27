@@ -136,9 +136,9 @@ CREATE TABLE notifications
 (
     id         SERIAL PRIMARY KEY,
     user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    event_id   UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    event_id   UUID  REFERENCES events (id) ON DELETE CASCADE,
     status     BOOLEAN     DEFAULT FALSE,
-    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL')),
+    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL','APPROVED','REQUEST','REJECTED')),
     title      VARCHAR(255),
     message    TEXT,
     created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP

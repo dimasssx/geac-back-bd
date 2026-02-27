@@ -6,16 +6,13 @@ import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.EventMapper;
 import br.com.geac.backend.Domain.Entities.*;
 import br.com.geac.backend.Domain.Enums.Role;
-import br.com.geac.backend.Domain.Exceptions.BadRequestException;
-import br.com.geac.backend.Domain.Exceptions.CategoryNotFoundException;
-import br.com.geac.backend.Domain.Exceptions.LocationNotFoundException;
+import br.com.geac.backend.Domain.Exceptions.*;
 import br.com.geac.backend.Infrastructure.Repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import br.com.geac.backend.Domain.Enums.EventStatus;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,7 +30,6 @@ public class EventService {
     private final OrganizerMemberRepository organizerMemberRepository;
     private final OrganizerRepository organizerRepository;
     private final RegistrationRepository registrationRepository;
-    // private final UserRepository userRepository;
 
 
     /*
@@ -61,20 +57,17 @@ public class EventService {
 
         var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
         if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
-            throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
+            throw new BadRequestException("Erro inesperado, não deveria ter chegado aqui pelo fluxo normal.");
         }
 
-        Event event = eventMapper.toEntity(dto);  //algum heroi ajusta omapper
-
+        Event event = eventMapper.toEntity(dto);
         event.setOrganizer(organization);
         event.setCategory(category);
         event.setLocation(location);
         event.setRequirements(resolveRequirements(dto.requirementIds()));
         event.setTags(resolveTags(dto.tags()));
         event.setSpeakers(resolveSpeakers(dto.speakers()));
-
         Event saved = eventRepository.save(event);
-
         return eventMapper.toResponseDTO(saved, false);
     }
 
@@ -86,7 +79,7 @@ public class EventService {
         List<EventRequirement> requirements = eventRequirementRepository.findAllById(requirementIds);
 
         if (requirements.size() != requirementIds.size()) {
-            throw new RuntimeException("Um ou mais requisitos informados não foram encontrados no sistema.");
+            throw new RequirementNotFoundException("Um ou mais requisitos informados não foram encontrados no sistema.");
         }
 
         return new HashSet<>(requirements);
@@ -118,7 +111,6 @@ public class EventService {
         if (dto.requirementIds() != null) {
             event.setRequirements(resolveRequirements(dto.requirementIds()));
         }
-        // por enquanto so tem 1 categoria, mas se tiver mais de 1 no futuro, tem que resolver a mesma coisa dos speakers e tags
         if (dto.categoryId() != null) {
             var category = categoryRepository.findById(dto.categoryId()).orElseThrow();
             event.setCategory(category);
@@ -135,7 +127,7 @@ public class EventService {
             }
             var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
             if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
-                throw new BadRequestException("erro inesperado de validation em algum lugar pois naod everia chegar aqwui");
+                throw new BadRequestException("erro inesperado de validation em algum lugar pois não everia chegar aqui pelo fluxo normal");
             }
             event.setOrganizer(organization);
         }
@@ -148,7 +140,6 @@ public class EventService {
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             return false;
         }
-
         try {
             User user = (User) authentication.getPrincipal();
             return registrationRepository.existsByUserIdAndEventId(user.getId(), eventId);
@@ -175,7 +166,7 @@ public class EventService {
 
     private Event getEventByIdOrThrow(UUID id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EventNotFoundException("Evento não encontrado com o ID: " + id));
     }
 
     public List<Event> getEventsBetween(LocalDateTime now, LocalDateTime eventDate) {

@@ -4,6 +4,7 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.TagResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.TagRequestDTO;
 import br.com.geac.backend.Aplication.Mappers.TagMapper;
 import br.com.geac.backend.Domain.Entities.Tag;
+import br.com.geac.backend.Domain.Exceptions.TagNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class TagService {
 
     private Tag getTagOrThrowBadRequest(Integer id) {
         return tagRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tag not found"));
+                .orElseThrow(() -> new TagNotFoundException("Tag not found"));
     }
 
 }

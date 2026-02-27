@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor //TODO: better error handling
+@RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository repository;
     private final CategoryMapper mapper;

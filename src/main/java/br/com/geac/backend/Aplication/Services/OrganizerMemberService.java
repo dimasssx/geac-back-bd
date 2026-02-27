@@ -6,7 +6,9 @@ import br.com.geac.backend.Domain.Entities.Organizer;
 import br.com.geac.backend.Domain.Entities.OrganizerMember;
 import br.com.geac.backend.Domain.Entities.User;
 import br.com.geac.backend.Domain.Enums.Role;
-import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Domain.Exceptions.OrganizerNotFoundExceptio;
+import br.com.geac.backend.Domain.Exceptions.UserIsAlreadyOrgMember;
+import br.com.geac.backend.Domain.Exceptions.UserNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerMemberRepository;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerRepository;
 import br.com.geac.backend.Infrastructure.Repositories.UserRepository;
@@ -26,35 +28,34 @@ public class OrganizerMemberService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void addMember(UUID organizerId, AddMemberRequestDTO dto) { //DEVIA usar esse add member no accept, ja q ´tem logica
+    public void addMember(UUID organizerId, AddMemberRequestDTO dto) {
+
         //verifica se a org existe
         Organizer organizer = organizerRepository.findById(organizerId)
-                .orElseThrow(() -> new RuntimeException("Organização não encontrada."));
-
+                .orElseThrow(() -> new OrganizerNotFoundExceptio("Organização não encontrada."));
         //verifica se o usuario existe
         User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
 
         //verifica se o usuário ja eh membro
         if (memberRepository.existsByOrganizerIdAndUserId(organizerId, dto.userId())) {
-            throw new ConflictException("Este usuário já é membro desta organização.");
+            throw new UserIsAlreadyOrgMember("Este usuário já é membro desta organização.");
         }
 
         OrganizerMember newMember = new OrganizerMember();
         newMember.setOrganizer(organizer);
         newMember.setUser(user);
-        if (user.getRole().equals(Role.STUDENT)) {
+        if (user.getRole().equals(Role.STUDENT) || user.getRole().equals(Role.PROFESSOR)) {
             user.setRole(Role.ORGANIZER);
             userRepository.save(user);
         }
         memberRepository.save(newMember);
     }
 
-    //pegar todos os membros da org
     @Transactional(readOnly = true)
     public List<MemberResponseDTO> getMembersByOrganizerId(UUID organizerId) {
         if (!organizerRepository.existsById(organizerId)) {
-            throw new RuntimeException("Organização não encontrada.");
+            throw new OrganizerNotFoundExceptio("Organização não encontrada.");
         }
 
         List<OrganizerMember> members = memberRepository.findAllByOrganizerId(organizerId);
@@ -72,10 +73,10 @@ public class OrganizerMemberService {
     @Transactional
     public void removeMember(UUID organizerId, UUID userId) {
         OrganizerMember memberLink = memberRepository.findByOrganizerIdAndUserId(organizerId, userId)
-                .orElseThrow(() -> new RuntimeException("Vínculo de membro não encontrado nesta organização."));
-        var user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("UsERNOTfound"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado nesta organização."));
+        var user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User nao existe"));
         if (user.getRole().equals(Role.ORGANIZER)) {
-            user.setRole(Role.STUDENT);
+            user.setRole(Role.STUDENT); //todo: aqui teriamos que guardar um old-role seila, mas n acho q precisa por hora
             userRepository.save(user);
         }
         memberRepository.delete(memberLink);

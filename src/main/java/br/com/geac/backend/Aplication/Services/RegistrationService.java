@@ -5,11 +5,12 @@ import br.com.geac.backend.Domain.Entities.Event;
 import br.com.geac.backend.Domain.Entities.Notification;
 import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
-import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Domain.Exceptions.*;
 import br.com.geac.backend.Infrastructure.Repositories.EventRepository;
 import br.com.geac.backend.Infrastructure.Repositories.RegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class RegistrationService {
     public void markAttendanceInBulk(UUID eventId, List<UUID> userIds, boolean attended) {
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + eventId));
+                .orElseThrow(() -> new EventNotFoundException("Evento não encontrado com o ID: " + eventId));
 
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -50,7 +51,7 @@ public class RegistrationService {
 
         // 1. Busca o evento para validar o organizador
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado."));
+                .orElseThrow(() -> new EventNotFoundException("Evento não encontrado."));
 
         validateOrganizerAccess(event);
 
@@ -76,18 +77,18 @@ public class RegistrationService {
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento não encontrado com o ID: " + eventId));
+                .orElseThrow(() -> new EventNotFoundException("Evento não encontrado com o ID: " + eventId));
 
         if (registrationRepository.existsByUserIdAndEventId(loggedUser.getId(), eventId)) {
-            throw new ConflictException("Você já está inscrito neste evento.");
+            throw new UserAlreadySubscribedInEvent("Você já está inscrito neste evento.");
         }
 
         if (organizerMemberRepository.existsByOrganizerIdAndUserId(event.getOrganizer().getId(), loggedUser.getId())) {
-            throw new ConflictException("Você não pode se inscrever no evento que sua organização está promovendo.");
+            throw new MemberOfPromoterOrgException("Você não pode se inscrever no evento que sua organização está promovendo.");
         }
 
         if (event.getRegisteredCount() >= event.getMaxCapacity()) {
-            throw new ConflictException("Desculpe, este evento já atingiu a capacidade máxima de " + event.getMaxCapacity() + " participantes.");
+            throw new EventMaxCapacityAchievedException("Desculpe, este evento já atingiu a capacidade máxima de " + event.getMaxCapacity() + " participantes.");
         }
 
         event.setRegisteredCount(event.getRegisteredCount() + 1);
@@ -119,11 +120,11 @@ public class RegistrationService {
 
         // 2. Busca a inscrição dele no evento
         Registration registration = registrationRepository.findByUserIdAndEventId(loggedUser.getId(), eventId)
-                .orElseThrow(() -> new ConflictException("Você não possui uma inscrição ativa neste evento."));
+                .orElseThrow(() -> new RegistrationNotFoundException("Você não possui uma inscrição ativa neste evento."));
 
         // 3. (Opcional) Regra de negócio extra: Não permitir cancelar se a presença já foi dada
         if (Boolean.TRUE.equals(registration.getAttended())) {
-            throw new ConflictException("Não é possível cancelar a inscrição pois sua presença já foi validada no evento.");
+            throw new BadRequestException("Não é possível cancelar a inscrição pois sua presença já foi validada no evento.");
         }
 
         // 4. DECREMENTA O CONTADOR E SALVA (Devolve a vaga)
@@ -158,7 +159,7 @@ public class RegistrationService {
         boolean isMember = organizerMemberRepository.existsByOrganizerIdAndUserId(event.getOrganizer().getId(), loggedUser.getId());
 
         if (!isAdmin && !isMember) {
-            throw new AccessDeniedException("Acesso negado: Você não é membro da organização responsável por este evento.");
+            throw new BadRequestException("Acesso negado: Você não é membro da organização responsável por este evento."); //todo colocar forbiden no handler ou unauthorized
         }
     }
 

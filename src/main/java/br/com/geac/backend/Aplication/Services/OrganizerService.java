@@ -6,6 +6,8 @@ import br.com.geac.backend.Aplication.Mappers.OrganizerMapper;
 import br.com.geac.backend.Domain.Entities.Organizer;
 import br.com.geac.backend.Domain.Entities.OrganizerMember;
 import br.com.geac.backend.Domain.Exceptions.ConflictException;
+import br.com.geac.backend.Domain.Exceptions.OrganizerAlreadyExists;
+import br.com.geac.backend.Domain.Exceptions.OrganizerNotFoundExceptio;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerMemberRepository;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,7 @@ public class OrganizerService {
     @Transactional
     public OrganizerResponseDTO createOrganizer(OrganizerRequestDTO dto) {
         if (organizerRepository.existsByName(dto.name())) {
-            throw new ConflictException("Já existe uma organização cadastrada com este nome.");
+            throw new OrganizerAlreadyExists("Já existe uma organização cadastrada com este nome.");
         }
 
         Organizer organizer = organizerMapper.toEntity(dto);
@@ -52,7 +54,7 @@ public class OrganizerService {
         Organizer organizer = findByIdOrThrow(id);
 
         if (!organizer.getName().equalsIgnoreCase(dto.name()) && organizerRepository.existsByName(dto.name())) {
-            throw new ConflictException("Já existe outra organização cadastrada com este nome.");
+            throw new OrganizerAlreadyExists("Já existe outra organização cadastrada com este nome.");
         }
 
         organizer.setName(dto.name());
@@ -69,7 +71,7 @@ public class OrganizerService {
 
     private Organizer findByIdOrThrow(UUID id) {
         return organizerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organização não encontrada com o ID: " + id)); // Posteriormente podemos criar uma EntityNotFoundException global
+                .orElseThrow(() -> new OrganizerNotFoundExceptio("Organização não encontrada com o ID: " + id)); // Posteriormente podemos criar uma EntityNotFoundException global
     }
 
     public List<OrganizerResponseDTO> getAllUserOrganizer(UUID uuid) {

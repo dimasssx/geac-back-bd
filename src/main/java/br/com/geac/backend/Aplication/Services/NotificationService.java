@@ -33,7 +33,7 @@ public class NotificationService {
             notification.setCreatedAt(LocalDateTime.now());
             notification.setUser(user);
             notification.setType("REMINDER");
-            notification.setMessage("DOUTOR DAQUI 24 HORA TEU EVENTO COMEÇA");
+            notification.setMessage("Seu evento começará em 24 horas");
             notification.setTitle(event.getTitle());
             notification.setRead(false);
             notificationRepository.save(notification);
@@ -44,9 +44,6 @@ public class NotificationService {
 
     public void notify(Notification notification) {
             notificationRepository.save(notification);
-            String eventTitle = notification.getEvent() != null ? notification.getEvent().getTitle() : "Notificação de Sistema";
-            log.info("Notificacao realizada com sucesso!"+notification.getEvent().getTitle() );
-            log.info("Notificacao realizada com sucesso!"+notification.getUser().getEmail() );
     }
 
     public List<NotificationResponseDTO> getUnreadNotifications() {
@@ -75,13 +72,10 @@ public class NotificationService {
         notifications.forEach(notification -> notification.setRead(true));
         notificationRepository.saveAll(notifications);
     }
-
     private List<Notification> getUserNotifications() {
         var user = getAuthenticatedUser();
-        List<Notification> unread = notificationRepository.findByUserIdAndIsRead(user.getId(), false);
-        return unread;
+        return notificationRepository.findByUserIdAndIsRead(user.getId(), false);
     }
-
     private static User getAuthenticatedUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }

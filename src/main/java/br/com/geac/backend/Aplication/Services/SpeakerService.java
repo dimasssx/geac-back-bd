@@ -8,6 +8,8 @@ import br.com.geac.backend.Aplication.Mappers.QualificationMapper;
 import br.com.geac.backend.Aplication.Mappers.SpeakerMapper;
 import br.com.geac.backend.Domain.Entities.Qualification;
 import br.com.geac.backend.Domain.Entities.Speaker;
+import br.com.geac.backend.Domain.Exceptions.SpeakerAlreadyExistsException;
+import br.com.geac.backend.Domain.Exceptions.SpeakerNotFoundException;
 import br.com.geac.backend.Infrastructure.Repositories.SpeakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class SpeakerService {
     public SpeakerResponseDTO createSpeaker(SpeakerRequestDTO dto) {
 
         if (repository.existsByNameAndEmail(dto.name(), dto.email())) {
-            throw new RuntimeException("Speaker with the same name and email already exists");
+            throw new SpeakerAlreadyExistsException("Speaker with the same name and email already exists");
         }
 
         var toBeSaved = mapper.toEntity(dto);
@@ -56,9 +58,9 @@ public class SpeakerService {
         mapper.updateEntityFromDTO(dto, speaker);
 
         if (repository.existsByNameAndEmailAndIdNot(speaker.getName(), speaker.getEmail(), id)) {
-            throw new RuntimeException("Another speaker with the same name and email already exists");
+            throw new SpeakerAlreadyExistsException("Another speaker with the same name and email already exists");
         }
-        //TODO: verificacao meia boca, se der melhorar dps
+        //TODO:-> NAO MEXER NAO MEXER NAO MEXER <- verificacao meia boca, se der melhorar dps, assim sempre vai recriar no banco
         if (dto.qualifications() != null && !dto.qualifications().isEmpty() && qualificationsChanged(speaker, dto.qualifications())) {
             var qualifications = resolveQualifications(dto.qualifications());
             speaker.setQualifications(qualifications);
@@ -75,7 +77,7 @@ public class SpeakerService {
 
     private Speaker getSpeakerOrThrowBadRequest(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Speaker with id " + id + " not found"));
+                .orElseThrow(() -> new SpeakerNotFoundException("Speaker with id " + id + " not found"));
     }
 
     private boolean qualificationsChanged(Speaker speaker, Set<QualificationRequestDTO> dtos) {
