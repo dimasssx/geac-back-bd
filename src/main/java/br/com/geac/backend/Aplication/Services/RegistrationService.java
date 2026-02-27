@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.com.geac.backend.Infrastructure.Repositories.OrganizerMemberRepository;
+import br.com.geac.backend.Aplication.Services.CertificateService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class RegistrationService {
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
     private final OrganizerMemberRepository organizerMemberRepository;
+    private final CertificateService certificateService;
 
     @Transactional
     public void markAttendanceInBulk(UUID eventId, List<UUID> userIds, boolean attended) {
@@ -37,13 +39,15 @@ public class RegistrationService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Evento não encontrado com o ID: " + eventId));
 
-        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (!event.getOrganizer().getId().equals(loggedUser.getId())) {
-            throw new AccessDeniedException("Acesso negado: Você não é o organizador deste evento e não pode registrar presenças.");
-        }
+        //agora usa o metodo que valida se o usuario e Admin ou membro da organizacao
+        validateOrganizerAccess(event);
 
         registrationRepository.updateAttendanceInBulk(eventId, userIds, attended);
+
+        //emissao de certificados
+        if (attended) {
+            certificateService.issueCertificatesForEvent(eventId);
+        }
     }
 
     @Transactional(readOnly = true)
