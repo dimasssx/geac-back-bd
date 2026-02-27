@@ -61,6 +61,10 @@ public class EventService {
             throw new BadRequestException("Erro inesperado, não deveria ter chegado aqui pelo fluxo normal.");
         }
 
+        if (eventRepository.existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(dto.title(), organization.getId(), dto.startTime())) {
+            throw new EventAlreadyExistsException("Um evento com este título e horário já foi cadastrado por esta organização.");
+        }
+
         Event event = eventMapper.toEntity(dto);
         event.setOrganizer(organization);
         event.setCategory(category);
@@ -132,6 +136,14 @@ public class EventService {
                 throw new BadRequestException("erro inesperado de validation em algum lugar pois não everia chegar aqui pelo fluxo normal");
             }
             event.setOrganizer(organization);
+        }
+        String checkTitle = dto.title() != null ? dto.title() : event.getTitle();
+        LocalDateTime checkStartTime = dto.startTime() != null ? dto.startTime() : event.getStartTime();
+
+        if (eventRepository.existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(checkTitle, event.getOrganizer().getId(), checkStartTime)) {
+            if (!checkTitle.equalsIgnoreCase(event.getTitle()) || !checkStartTime.equals(event.getStartTime())) {
+                throw new EventAlreadyExistsException("Já existe outro evento com este título e horário nesta organização.");
+            }
         }
         return eventMapper.toResponseDTO(eventRepository.save(event), checkUserRegistration(event.getId()));
 
