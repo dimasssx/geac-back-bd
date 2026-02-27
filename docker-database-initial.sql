@@ -144,6 +144,15 @@ CREATE TABLE notifications
     created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE certificates
+(
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id         UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    event_id        UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    validation_code VARCHAR(100) NOT NULL UNIQUE,
+    issued_at       TIMESTAMP DEFAULT NOW()
+);
+
 -- ==========================================
 -- DADOS INICIAIS (SEED) PARA TESTES DE EVENTO
 -- ==========================================
