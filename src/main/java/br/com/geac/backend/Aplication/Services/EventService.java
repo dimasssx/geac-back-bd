@@ -35,15 +35,15 @@ public class EventService {
 
 
     /*
-    * verifica se o usuário é um organizador ou admin -> procura as categorias, localizações e eventos no banco,
-    * procura a organização que foi passada no frontEnd pelo ID
-    * verifica se o usuário realment pertence a esta organização ( caso algo tenha dado errado, nao era pra entrar aqui pois há diversos filtros)
-    * cria o evento e manda a resposta pelo  dtoresponse
+     * verifica se o usuário é um organizador ou admin -> procura as categorias, localizações e eventos no banco,
+     * procura a organização que foi passada no frontEnd pelo ID
+     * verifica se o usuário realment pertence a esta organização ( caso algo tenha dado errado, nao era pra entrar aqui pois há diversos filtros)
+     * cria o evento e manda a resposta pelo  dtoresponse
      */
     @Transactional
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<String> authorites = List.of("ORGANIZER","ADMIN");
+        List<String> authorites = List.of("ORGANIZER", "ADMIN");
 
         if (user.getRole() == null || !authorites.contains(user.getRole().name())) { //nao necessário mas uma segurança  a mais
             throw new AccessDeniedException("Apenas organizadores e administradores podem cadastrar eventos.");
@@ -57,7 +57,7 @@ public class EventService {
                     .orElseThrow(() -> new LocationNotFoundException("Local não encontrado com ID: " + dto.locationId()));
         }
 
-        var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
+        var organization = organizerRepository.findById(dto.orgId()).orElseThrow(() -> new BadRequestException("O organizador com ID: " + dto.orgId() + "nao foi encontrado"));
         if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
             throw new BadRequestException("Erro inesperado, não deveria ter chegado aqui pelo fluxo normal.");
         }
@@ -74,6 +74,7 @@ public class EventService {
         event.setTags(resolveTags(dto.tags()));
         event.setSpeakers(resolveSpeakers(dto.speakers()));
         Event saved = eventRepository.save(event);
+
         return eventMapper.toResponseDTO(saved, null);
     }
 
@@ -94,16 +95,20 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public List<EventResponseDTO> getAllEvents() {
-        List<Event> events = eventRepository.findAll();
-        return events.stream()
-                .map(event -> eventMapper.toResponseDTO(event, getUserRegistrationContext(event.getId())))
-                .toList();
+        List<Object[]> results = eventRepository.findAllWithRegistrationCount();
+        return results.stream().map(result -> {
+            Event event = (Event) result[0];
+            Long inscritos = (Long) result[1];
+            return eventMapper.toResponseDTO(event, null, inscritos.intValue());
+        }).toList();
     }
 
     @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
         Event event = getEventByIdOrThrow(id);
-        return eventMapper.toResponseDTO(event, getUserRegistrationContext(event.getId()));
+        Integer subscribes = (int) registrationRepository.countByEventIdAndStatus((id), "CONFIRMED");
+
+        return eventMapper.toResponseDTO(event, getUserRegistrationContext(event.getId()), subscribes);
     }
 
     @Transactional
@@ -128,11 +133,11 @@ public class EventService {
         }
         if (dto.orgId() != null) {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            List<String> authorites = List.of("ORGANIZER","ADMIN");
+            List<String> authorites = List.of("ORGANIZER", "ADMIN");
             if (user.getRole() == null || !authorites.contains(user.getRole().name())) { //nao necessário mas uma segurança  a mais
                 throw new AccessDeniedException("Apenas organizadores e administradores podem editar eventos.");
             }
-            var organization = organizerRepository.findById(dto.orgId()).orElseThrow(()-> new BadRequestException("O organizador com ID: " + dto.orgId()+"nao foi encontrado") );
+            var organization = organizerRepository.findById(dto.orgId()).orElseThrow(() -> new BadRequestException("O organizador com ID: " + dto.orgId() + "nao foi encontrado"));
             if (user.getRole() != Role.ADMIN && !organizerMemberRepository.existsByOrganizerIdAndUserId(organization.getId(), user.getId())) {
                 throw new BadRequestException("erro inesperado de validation em algum lugar pois não everia chegar aqui pelo fluxo normal");
             }
@@ -150,7 +155,7 @@ public class EventService {
 
     }
 
-        private UserRegistrationContextResponseDTO getUserRegistrationContext(UUID eventId) {
+    private UserRegistrationContextResponseDTO getUserRegistrationContext(UUID eventId) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             return new UserRegistrationContextResponseDTO(false, null, false);
@@ -201,7 +206,7 @@ public class EventService {
     }
 
     public List<Event> getEventsBetween(LocalDateTime now, LocalDateTime eventDate) {
-        return eventRepository.findAllByStartTimeBetween(now,eventDate);
+        return eventRepository.findAllByStartTimeBetween(now, eventDate);
     }
 
     public List<Event> getPastEvents(LocalDateTime now) {

@@ -28,7 +28,7 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
+    public ResponseEntity<List<EventResponseDTO>> getAllEvents() { //nao carrega contagem, creio q n vai bugar pq so pega por id no front
         List<EventResponseDTO> events = eventService.getAllEvents();
         return ResponseEntity.ok(events);
     }

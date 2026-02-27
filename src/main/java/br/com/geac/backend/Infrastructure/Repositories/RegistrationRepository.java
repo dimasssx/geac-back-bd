@@ -35,4 +35,10 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
     List<Registration> findByEventIdAndNotifiedIsFalse(UUID eventId, boolean notified);
 
     List<Registration> findByEventIdAndNotified(UUID eventId, boolean notified);
+
+    long countByEventIdAndStatus(UUID eventId, String status);
+
+    <T> ScopedValue<T> findByEventIdAndUserId(UUID eventId, UUID userId);
+
+    Registration getByUserIdAndEventId(UUID userId, UUID eventId);
 }

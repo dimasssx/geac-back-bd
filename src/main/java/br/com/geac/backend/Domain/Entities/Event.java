@@ -58,9 +58,9 @@ public class Event {
     @Convert(converter = EventStatusConverter.class)
     private EventStatus status = EventStatus.ACTIVE;
 
-    @ColumnDefault("0")
-    @Column(name = "registered_count", nullable = false)
-    private Integer registeredCount = 0;
+//    @ColumnDefault("0")
+//    @Column(name = "registered_count", nullable = false)
+//    private Integer registeredCount = 0;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

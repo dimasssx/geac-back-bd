@@ -92,14 +92,14 @@ public class RegistrationService {
             throw new MemberOfPromoterOrgException("Você não pode se inscrever no evento que sua organização está promovendo.");
         }
 
-        if (event.getRegisteredCount() >= event.getMaxCapacity()) {
+        var subscribes = registrationRepository.countByEventIdAndStatus(eventId,"CONFIRMED");
+        if (subscribes >= event.getMaxCapacity()) {
             throw new EventMaxCapacityAchievedException("Desculpe, este evento já atingiu a capacidade máxima de " + event.getMaxCapacity() + " participantes.");
         }
         if((event.getStatus() != EventStatus.ACTIVE) && (event.getStatus() != EventStatus.UPCOMING)) {
             throw new EventNotAvailableException("O Evento que voce está tentando se inscrever ainda nao está disponivel ou já foi encerrado");
         }
 
-        event.setRegisteredCount(event.getRegisteredCount() + 1);
         eventRepository.save(event);
 
         Registration registration = new Registration();
@@ -134,13 +134,8 @@ public class RegistrationService {
         if (Boolean.TRUE.equals(registration.getAttended())) {
             throw new BadRequestException("Não é possível cancelar a inscrição pois sua presença já foi validada no evento.");
         }
-
-        // 4. DECREMENTA O CONTADOR E SALVA (Devolve a vaga)
         Event event = registration.getEvent();
-        if (event.getRegisteredCount() > 0) {
-            event.setRegisteredCount(event.getRegisteredCount() - 1);
-            eventRepository.save(event);
-        }
+
 
         Notification notification = new Notification();
         notification.setUser(loggedUser);
