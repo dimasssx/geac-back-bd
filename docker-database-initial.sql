@@ -94,7 +94,9 @@ CREATE TABLE events
     max_capacity   INTEGER      NOT NULL,
 --     requirement_id INTEGER              NOT NULL REFERENCES requirements (id), -- ✅ REMOVIDO: O relacionamento de requisitos agora é muitos-para-muitos, então essa coluna foi removida --- IGNORE ---
 
-    status         VARCHAR(20),
+    status         VARCHAR(20)      DEFAULT 'UPCOMING' CHECK ( status IN
+                                                               ('UPCOMING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED',
+                                                                'CANCELLED') ),
     created_at     TIMESTAMP        DEFAULT NOW()
 );
 
@@ -136,9 +138,10 @@ CREATE TABLE notifications
 (
     id         SERIAL PRIMARY KEY,
     user_id    UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    event_id   UUID  REFERENCES events (id) ON DELETE CASCADE,
+    event_id   UUID REFERENCES events (id) ON DELETE CASCADE,
     status     BOOLEAN     DEFAULT FALSE,
-    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL','APPROVED','REQUEST','REJECTED')),
+    type       VARCHAR(25) DEFAULT 'REMINDER' CHECK (type IN ('REMINDER', 'SUBSCRIBE', 'CANCEL', 'APPROVED', 'REQUEST',
+                                                              'REJECTED')),
     title      VARCHAR(255),
     message    TEXT,
     created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
@@ -147,326 +150,292 @@ CREATE TABLE notifications
 CREATE TABLE certificates
 (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id         UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    event_id        UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    user_id         UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    event_id        UUID         NOT NULL REFERENCES events (id) ON DELETE CASCADE,
     validation_code VARCHAR(100) NOT NULL UNIQUE,
-    issued_at       TIMESTAMP DEFAULT NOW()
+    issued_at       TIMESTAMP        DEFAULT NOW()
 );
 
 CREATE TABLE registrations
 (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    attended BOOLEAN DEFAULT FALSE,
-    notified BOOLEAN DEFAULT FALSE,
-    registration_date TIMESTAMP DEFAULT NOW(),
-    user_id         UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    event_id        UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
-    UNIQUE(user_id, event_id)
+    id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    attended          BOOLEAN          DEFAULT FALSE,
+    notified          BOOLEAN          DEFAULT FALSE,
+    registration_date TIMESTAMP        DEFAULT NOW(),
+    user_id           UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    event_id          UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    UNIQUE (user_id, event_id)
 );
 
 CREATE TABLE evaluations
 (
-    id  SERIAL PRIMARY KEY,
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    rating INTEGER CHECK (rating>=1 AND rating <= 5),
-    registration_id UUID NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
-    UNIQUE(registration_id)
+    id              SERIAL PRIMARY KEY,
+    comment         TEXT,
+    created_at      TIMESTAMP DEFAULT NOW(),
+    rating          INTEGER CHECK (rating >= 1 AND rating <= 5),
+    registration_id UUID NOT NULL REFERENCES registrations (id) ON DELETE CASCADE,
+    UNIQUE (registration_id)
 );
 
-CREATE OR REPLACE VIEW vw_horas_extracurriculares_aluno AS
-SELECT
-    u.id AS student_id,
-    u.full_name AS student_name,
-    u.email AS student_email,
-    COUNT(c.id) AS total_certificados_emitidos,
-    COALESCE(SUM(e.workload_hours), 0) AS total_horas_acumuladas
+CREATE
+OR REPLACE VIEW vw_horas_extracurriculares_aluno AS
+SELECT u.id                               AS student_id,
+       u.full_name                        AS student_name,
+       u.email                            AS student_email,
+       COUNT(c.id)                        AS total_certificados_emitidos,
+       COALESCE(SUM(e.workload_hours), 0) AS total_horas_acumuladas
 FROM users u
          LEFT JOIN certificates c ON u.id = c.user_id
          LEFT JOIN events e ON c.event_id = e.id
 WHERE u.user_type = 'STUDENT'
 GROUP BY u.id, u.full_name, u.email;
 
-CREATE OR REPLACE VIEW vw_eventos_estatisticas AS
-SELECT
-    e.id AS event_id,
-    e.title AS event_title,
-    e.status AS event_status,
-    COUNT(DISTINCT r.id) AS total_inscritos,
-    SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END) AS total_presentes,
-    ROUND(AVG(ev.rating), 2) AS media_avaliacao
+CREATE
+OR REPLACE VIEW vw_eventos_estatisticas AS
+SELECT e.id                                               AS event_id,
+       e.title                                            AS event_title,
+       e.status                                           AS event_status,
+       COUNT(DISTINCT r.id)                               AS total_inscritos,
+       SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END) AS total_presentes,
+       ROUND(AVG(ev.rating), 2)                           AS media_avaliacao
 FROM events e
          LEFT JOIN registrations r ON e.id = r.event_id
          LEFT JOIN evaluations ev ON r.id = ev.registration_id
 GROUP BY e.id, e.title, e.status;
--- ============================================================
--- USERS
--- ============================================================
-INSERT INTO users (full_name, email, password_hash, user_type)
-VALUES (
-           'Administrador do Sistema',
-           'admin@geac.com',
-           '$2y$10$/5w0baJ/4H4MrN98n9Ika.T8mW8fOSJTr1MhKFp2E.QyPoh985ND2',
-           'ADMIN'
-       );
-INSERT INTO users (full_name, email, password_hash, user_type) VALUES
-                                                                   ('Ana Clara Silva','ana.silva@email.com','123456','STUDENT'),
-                                                                   ('João Pedro Santos','joao.santos@email.com','123456','STUDENT'),
-                                                                   ('Mariana Oliveira','mariana.oliveira@email.com','123456','STUDENT'),
-                                                                   ('Carlos Eduardo Lima','carlos.lima@email.com','123456','PROFESSOR'),
-                                                                   ('Fernanda Souza','fernanda.souza@email.com','123456','PROFESSOR'),
-                                                                   ('Rafael Costa','rafael.costa@email.com','123456','STUDENT'),
-                                                                   ('Beatriz Almeida','beatriz.almeida@email.com','123456','STUDENT'),
-                                                                   ('Lucas Martins','lucas.martins@email.com','123456','STUDENT'),
-                                                                   ('Juliana Ferreira','juliana.ferreira@email.com','123456','PROFESSOR'),
-                                                                   ('Gabriel Rodrigues','gabriel.rodrigues@email.com','123456','STUDENT');
 
-INSERT INTO users (full_name, email, password_hash, user_type)
+CREATE OR REPLACE VIEW vw_engajamento_organizacoes AS
 SELECT
-    'Aluno Teste ' || i,
-    'aluno' || i || '@email.com',
-    '123456',
-    'STUDENT'
-FROM generate_series(1,50) i;
-
-
--- ============================================================
--- CATEGORIES
--- ============================================================
-
-INSERT INTO categories (name, description) VALUES
-                                               ('Tecnologia','Eventos relacionados a tecnologia e inovação'),
-                                               ('Saúde','Eventos da área da saúde'),
-                                               ('Educação','Palestras e workshops educacionais'),
-                                               ('Empreendedorismo','Eventos sobre startups e negócios'),
-                                               ('Pesquisa Científica','Apresentação de pesquisas'),
-                                               ('Extensão','Projetos de extensão universitária'),
-                                               ('Engenharia','Eventos técnicos de engenharia'),
-                                               ('Direito','Seminários jurídicos'),
-                                               ('Sustentabilidade','Meio ambiente e impacto social'),
-                                               ('Inteligência Artificial','IA e aprendizado de máquina');
-
-INSERT INTO categories (name, description)
-SELECT
-    'Categoria Extra ' || i,
-    'Categoria complementar acadêmica'
-FROM generate_series(1,40) i;
-
-
--- ============================================================
--- LOCATIONS
--- ============================================================
-
-INSERT INTO locations
-(name, street, number, neighborhood, city, state, zip_code, campus, capacity)
-VALUES
-    ('Auditório Central','Rua Frei Caneca','100','Centro','Recife','PE','50000-000','Campus Recife',300),
-    ('Bloco A - Sala 101','Av. Agamenon Magalhães','200','Boa Vista','Recife','PE','50050-000','Campus Recife',80),
-    ('Auditório IFPE','Rua Henrique Dias','150','Centro','Caruaru','PE','55000-000','Campus Caruaru',250),
-    ('Sala Multiuso','Rua Capitão João Velho','75','São José','Garanhuns','PE','55290-000','Campus Garanhuns',120),
-    ('Auditório UFPE','Av. Prof. Moraes Rego','1235','Cidade Universitária','Recife','PE','50670-901','Campus UFPE',400);
-
-INSERT INTO locations
-(name, street, number, neighborhood, city, state, zip_code, campus, capacity)
-SELECT
-    'Sala Acadêmica ' || i,
-    'Rua Acadêmica',
-    i::text,
-    'Centro',
-    'Recife',
-    'PE',
-    '50000-000',
-    'Campus Recife',
-    60 + (i % 150)
-FROM generate_series(1,45) i;
-
-
--- ============================================================
--- ORGANIZERS
--- ============================================================
-
-INSERT INTO organizers (name, contact_email) VALUES
-                                                 ('Centro Acadêmico de Computação','cac@universidade.br'),
-                                                 ('Departamento de Engenharia','engenharia@universidade.br'),
-                                                 ('Liga Acadêmica de IA','ligaia@universidade.br'),
-                                                 ('Núcleo de Pesquisa Científica','npc@universidade.br'),
-                                                 ('Empresa Júnior Tech','ejtech@universidade.br');
-
-INSERT INTO organizers (name, contact_email)
-SELECT
-    'Organização Acadêmica ' || i,
-    'org' || i || '@universidade.br'
-FROM generate_series(1,45) i;
-
-
--- ============================================================
--- ORGANIZER_MEMBERS
--- ============================================================
-
-INSERT INTO organizer_members (organizer_id, user_id)
-SELECT
-    o.id,
-    u.id
+    o.id AS organizer_id,
+    o.name AS organizer_name,
+    COUNT(DISTINCT e.id) AS total_eventos_realizados,
+    COALESCE(SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END), 0) AS total_participantes_engajados
 FROM organizers o
-         CROSS JOIN LATERAL (
-    SELECT id
-    FROM users
-    ORDER BY random()
-        LIMIT 3
-) u
-ON CONFLICT DO NOTHING;
+         LEFT JOIN events e ON o.id = e.organizer_id
+         LEFT JOIN registrations r ON e.id = r.event_id
+GROUP BY o.id, o.name;
 
+INSERT INTO users (full_name, email, password_hash, user_type)
+VALUES ('Administrador do Sistema',
+        'admin@geac.com',
+        '$2y$10$/5w0baJ/4H4MrN98n9Ika.T8mW8fOSJTr1MhKFp2E.QyPoh985ND2',
+        'ADMIN');
+-- 50 CATEGORIAS
+INSERT INTO categories (name, description)
+VALUES ('Programação Web', 'Desenvolvimento de sites e sistemas web.'),
+       ('Saúde Coletiva', 'Estudos e práticas sobre saúde pública.'),
+       ('Empreendedorismo', 'Inovação e novos modelos de negócio.'),
+       ('Inteligência Artificial', 'Machine learning e redes neurais.'),
+       ('Direito Civil', 'Debates sobre legislação e normas civis.'),
+       ('Gestão de Projetos', 'Metodologias ágeis e tradicionais.'),
+       ('Design de Experiência', 'Foco no usuário e interfaces.'),
+       ('Engenharia de Software', 'Processos e qualidade de código.'),
+       ('Marketing Digital', 'Estratégias para redes sociais e SEO.'),
+       ('Finanças Pessoais', 'Educação financeira para estudantes.'),
+       ('Cibersegurança', 'Proteção de dados e redes.'),
+       ('Data Science', 'Análise de grandes volumes de dados.'),
+       ('Arquitetura de Nuvem', 'AWS, Azure e Google Cloud.'),
+       ('Desenvolvimento Mobile', 'Apps para Android e iOS.'),
+       ('Soft Skills', 'Comunicação e liderança.'),
+-- ... (repetir padrões para atingir 50)
+       ('Robótica', 'Construção e programação de robôs.'),
+       ('Educação Inclusiva', 'Métodos de ensino adaptados.'),
+       ('Energias Renováveis', 'Sustentabilidade e energia solar.'),
+       ('Psicologia Organizacional', 'Comportamento humano no trabalho.'),
+       ('Bioinformática', 'Tecnologia aplicada à biologia.'),
+       ('Blockchain', 'Criptoativos e contratos inteligentes.'),
+       ('Internet das Coisas', 'Dispositivos conectados.'),
+       ('Realidade Virtual', 'Imersão e simulações digitais.'),
+       ('Ética na Tecnologia', 'Privacidade e viés algorítmico.'),
+       ('Metodologias Ativas', 'Novas formas de aprender.'),
+       ('Sustentabilidade Urbana', 'Cidades inteligentes e verdes.'),
+       ('Logística e Supply Chain', 'Cadeia de suprimentos eficiente.'),
+       ('Gastronomia Regional', 'Culinária do Nordeste brasileiro.'),
+       ('História de Pernambuco', 'Raízes e cultura do estado.'),
+       ('Literatura Brasileira', 'Clássicos e novos autores.'),
+       ('Fotografia Digital', 'Técnicas de iluminação e edição.'),
+       ('Produção Audiovisual', 'Criação de vídeos e podcasts.'),
+       ('Gestão Pública', 'Administração de bens e serviços.'),
+       ('Direito do Trabalho', 'Relações entre patrão e empregado.'),
+       ('Contabilidade Geral', 'Balanços e demonstrações financeiras.'),
+       ('Nutrição Esportiva', 'Dieta aplicada ao rendimento.'),
+       ('Fisioterapia Preventiva', 'Exercícios para evitar lesões.'),
+       ('Enfermagem Obstétrica', 'Cuidados no parto e pós-parto.'),
+       ('Odontologia Social', 'Saúde bucal para comunidades.'),
+       ('Agronomia Tropical', 'Cultivo em climas quentes.'),
+       ('Medicina Veterinária', 'Cuidado com pequenos animais.'),
+       ('Farmácia Clínica', 'Interações medicamentosas.'),
+       ('Artes Visuais', 'Pintura, escultura e design.'),
+       ('Música e Tecnologia', 'Produção fonográfica digital.'),
+       ('Teatro e Expressão', 'Artes cênicas e comunicação.'),
+       ('Astronomia Amadora', 'Observação dos astros.'),
+       ('Física Quântica', 'Conceitos básicos e avançados.'),
+       ('Química Industrial', 'Processos químicos em larga escala.'),
+       ('Matemática Aplicada', 'Cálculos para engenharia.'),
+       ('Sociologia Rural', 'Estudos do campo e sociedade.');
 
--- ============================================================
--- SPEAKERS
--- ============================================================
-
-INSERT INTO speakers (name, bio, email) VALUES
-                                            ('Dr. Ricardo Mendes','Doutor em Ciência da Computação pela USP','ricardo.mendes@universidade.br'),
-                                            ('Dra. Patrícia Gomes','Pesquisadora em Inteligência Artificial','patricia.gomes@universidade.br'),
-                                            ('Dr. Eduardo Carvalho','Especialista em Engenharia de Software','eduardo.carvalho@universidade.br'),
-                                            ('Dra. Camila Rocha','Pesquisadora em Sustentabilidade','camila.rocha@universidade.br'),
-                                            ('Dr. Felipe Andrade','Especialista em Segurança da Informação','felipe.andrade@universidade.br');
-
-INSERT INTO speakers (name, bio, email)
-SELECT
-    'Professor Convidado ' || i,
-    'Especialista convidado para palestras acadêmicas',
-    'prof' || i || '@universidade.br'
-FROM generate_series(1,45) i;
-
-
--- ============================================================
--- TAGS
--- ============================================================
-
-INSERT INTO tags (name)
-SELECT 'Tag Acadêmica ' || i
-FROM generate_series(1,50) i;
-
-
--- ============================================================
--- REQUIREMENTS
--- ============================================================
-
+-- 50 REQUISITOS (EXEMPLOS)
 INSERT INTO requirements (description)
-SELECT 'Requisito acadêmico ' || i
-FROM generate_series(1,50) i;
+SELECT 'Requisito de Conhecimento Nível ' || i
+FROM generate_series(1, 50) i;
+
+-- 50 TAGS
+INSERT INTO tags (name)
+VALUES ('#Java'),
+       ('#Python'),
+       ('#React'),
+       ('#Medicina'),
+       ('#Direito'),
+       ('#UX'),
+       ('#Agile'),
+       ('#Cloud'),
+       ('#DevOps'),
+       ('#DataScience'),
+       ('#Sprint'),
+       ('#Inovação'),
+       ('#RecifeTech'),
+       ('#CaruaruNegocios'),
+       ('#SurubimCriativo'),
+       ('#Saude'),
+       ('#Educação'),
+       ('#Workshop'),
+       ('#Hackathon'),
+       ('#Palestra'),
+       ('#BackEnd'),
+       ('#FrontEnd'),
+       ('#FullStack'),
+       ('#Mobile'),
+       ('#Security'),
+       ('#AI'),
+       ('#ML'),
+       ('#BigData'),
+       ('#IoT'),
+       ('#Blockchain'),
+       ('#Marketing'),
+       ('#SEO'),
+       ('#SocialMedia'),
+       ('#Design'),
+       ('#Figma'),
+       ('#NodeJS'),
+       ('#SQL'),
+       ('#NoSQL'),
+       ('#Docker'),
+       ('#Kubernetes'),
+       ('#Networking'),
+       ('#SoftSkills'),
+       ('#Leadership'),
+       ('#Ethics'),
+       ('#GreenTech'),
+       ('#Fintech'),
+       ('#EdTech'),
+       ('#HealthTech'),
+       ('#LegalTech'),
+       ('#BioTech');
+
+-- 50 USUÁRIOS (Alguns ADMIN, alguns STUDENT, alguns ORGANIZER)
+INSERT INTO users (full_name, email, password_hash, user_type)
+SELECT 'Usuário Exemplo ' || i,
+       'usuario' || i || '@email.com',
+       '$2a$10$8K1p/aP2Wq...', -- Hash fictício
+       CASE WHEN i % 3 = 0 THEN 'ADMIN' WHEN i % 3 = 1 THEN 'STUDENT' ELSE 'ORGANIZER' END
+FROM generate_series(1, 50) i;
+
+-- 50 PALESTRANTES
+INSERT INTO speakers (name, bio, email)
+SELECT 'Palestrante ' || i,
+       'Especialista com mais de 10 anos de experiência na área de atuação.',
+       'speaker' || i || '@expert.com'
+FROM generate_series(1, 50) i;
+
+-- 50 ORGANIZADORES
+INSERT INTO organizers (name, contact_email)
+SELECT 'Centro Acadêmico de ' || c.name,
+       'contato@organizador' || c.id || '.com'
+FROM categories c LIMIT 50;
+
+-- 50 LOCALIZAÇÕES (Distribuídas entre os campi do Enum)
+INSERT INTO locations (name, street, number, neighborhood, city, state, zip_code, campus, capacity)
+VALUES ('Auditório Principal Surubim', 'Rua João Batista', '100', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Central', 200),
+       ('Laboratório de Informática A', 'Av. Agamenon Magalhães', '250', 'Maurício de Nassau', 'Caruaru', 'PE',
+        '55012-000', 'Campus Caruaru Inovação', 40),
+       ('Sala de Conferências Recife', 'Av. Boa Viagem', '1500', 'Boa Viagem', 'Recife', 'PE', '51020-000',
+        'Campus Recife Alfa', 150),
+       ('Bloco de Saúde Beta', 'Rua do Hospício', '50', 'Boa Vista', 'Recife', 'PE', '50060-000', 'Campus Recife Saúde',
+        100),
+       ('Espaço Criativo Delta', 'Rua Oscar Loureiro', '12', 'Coqueiral', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Criativo', 60),
+-- ... (Gerando mais 45 variações baseadas no seu Enum)
+       ('Auditório Sul Caruaru', 'Rua Josefa Taveira', '99', 'Salgado', 'Caruaru', 'PE', '55016-000',
+        'Campus Caruaru Sul', 120),
+       ('Sala de Pós-Graduação', 'Av. Caxangá', '2000', 'Caxangá', 'Recife', 'PE', '50711-000',
+        'Campus Recife Pós-Graduação', 30),
+       ('Centro de Convenções Norte', 'Rua da Aurora', '500', 'Santo Amaro', 'Recife', 'PE', '50040-000',
+        'Campus Recife Norte', 500);
+-- (Nota: Para completar 50, o ideal é rodar um loop ou replicar mudando o campus conforme sua lista de Enums)
+
+-- Populando as demais 42 localizações automaticamente para garantir o volume:
+INSERT INTO locations (name, street, number, neighborhood, city, state, zip_code, campus, capacity)
+SELECT 'Sala ' || i,
+       'Rua Exemplo ' || i,
+       i * 2,
+       'Bairro ' || i,
+       CASE WHEN i % 3 = 0 THEN 'Recife' WHEN i % 3 = 1 THEN 'Caruaru' ELSE 'Surubim' END,
+       'PE',
+       '55000-000',
+       (ARRAY['Campus Surubim Alfa', 'Campus Recife Beta', 'Campus Caruaru Central', 'Campus Surubim Inovação',
+        'Campus Recife Saúde'])[floor(random()*5)+1],
+    50
+FROM generate_series(6, 50) i;
 
 
--- ============================================================
--- EVENTS
--- ============================================================
-
-INSERT INTO events
-(organizer_id, category_id, location_id,
- title, description, start_time, end_time,
- workload_hours, max_capacity, status)
-SELECT
-    (SELECT id FROM organizers ORDER BY random() LIMIT 1),
-    (SELECT id FROM categories ORDER BY random() LIMIT 1),
-    (SELECT id FROM locations ORDER BY random() LIMIT 1),
-    'Workshop de Desenvolvimento Web ' || i,
-    'Evento prático com foco em aplicações reais e mercado.',
+-- 50 EVENTOS
+INSERT INTO events (organizer_id, category_id, location_id, title, description, start_time, end_time, workload_hours,
+                    max_capacity, status)
+SELECT (SELECT id FROM organizers OFFSET (i-1) LIMIT 1),
+    (SELECT id FROM categories OFFSET (i-1) LIMIT 1),
+    (SELECT id FROM locations OFFSET (i-1) LIMIT 1),
+    'Evento de ' || (SELECT name FROM categories OFFSET (i-1) LIMIT 1),
+    'Uma imersão completa sobre o tema, com foco em práticas de mercado e networking.',
     NOW() + (i || ' days')::interval,
-    NOW() + (i || ' days')::interval + interval '3 hours',
-    3,
-    150,
-    CASE WHEN i % 2 = 0 THEN 'OPEN' ELSE 'CLOSED' END
-FROM generate_series(1,50) i;
+    NOW() + (i || ' days 4 hours')::interval,
+    4,
+    (SELECT capacity FROM locations OFFSET (i-1) LIMIT 1),
+    'UPCOMING'
+FROM generate_series(1, 50) i;
 
-
--- ============================================================
--- EVENT RELATIONSHIPS
--- ============================================================
-
+-- 50 EVENT_SPEAKERS (Relacionando eventos aos palestrantes)
 INSERT INTO event_speakers (event_id, speaker_id)
 SELECT e.id, s.id
-FROM events e
-         CROSS JOIN LATERAL (
-    SELECT id FROM speakers ORDER BY random() LIMIT 2
-) s
-ON CONFLICT DO NOTHING;
+FROM (SELECT id FROM events LIMIT 50) e
+         CROSS JOIN (SELECT id FROM speakers LIMIT 1) s;
+-- Cada evento com ao menos 1 palestrante
 
-INSERT INTO event_tags (event_id, tag_id)
-SELECT e.id, t.id
-FROM events e
-         CROSS JOIN LATERAL (
-    SELECT id FROM tags ORDER BY random() LIMIT 3
-) t
-ON CONFLICT DO NOTHING;
+-- 50 REGISTRATIONS (Inscrições de alunos nos eventos)
+INSERT INTO registrations (user_id, event_id, registration_date)
+SELECT (SELECT id FROM users WHERE user_type = 'STUDENT' LIMIT 1 OFFSET (i % 10)),
+    (SELECT id FROM events LIMIT 1 OFFSET (i-1)),
+    NOW()
+FROM generate_series(1, 50) i;
 
-INSERT INTO event_requirements (event_id, requirement_id)
-SELECT e.id, r.id
-FROM events e
-         CROSS JOIN LATERAL (
-    SELECT id FROM requirements ORDER BY random() LIMIT 2
-) r
-ON CONFLICT DO NOTHING;
-
-
--- ============================================================
--- REGISTRATIONS
--- ============================================================
-
-INSERT INTO registrations (user_id, event_id)
-SELECT u.id, e.id
-FROM users u
-         JOIN events e ON random() < 0.2
-    ON CONFLICT DO NOTHING;
-
-
--- ============================================================
--- NOTIFICATIONS
--- ============================================================
-
-INSERT INTO notifications (user_id, event_id, type, title, message)
-SELECT
-    r.user_id,
-    r.event_id,
-    'SUBSCRIBE',
-    'Inscrição Confirmada',
-    'Sua inscrição foi realizada com sucesso.'
-FROM registrations r
-    LIMIT 100;
-
-
--- ============================================================
--- CERTIFICATES
--- ============================================================
-
+-- 50 CERTIFICADOS
 INSERT INTO certificates (user_id, event_id, validation_code)
-SELECT
-    r.user_id,
-    r.event_id,
-    md5(random()::text)
-FROM registrations r
-    LIMIT 50;
--- ============================================================
--- MARCAR ALGUMAS INSCRIÇÕES COMO PARTICIPADAS
--- ============================================================
+SELECT r.user_id,
+       r.event_id,
+       'VALID-' || r.id
+FROM registrations r LIMIT 50;
 
-UPDATE registrations
-SET attended = TRUE
-WHERE random() < 0.5;
-
-
--- ============================================================
--- EVALUATIONS
--- ============================================================
-
+-- 50 AVALIAÇÕES
 INSERT INTO evaluations (comment, rating, registration_id)
-SELECT
-    CASE
-        WHEN floor(random()*5)+1 = 5 THEN 'Evento excelente, superou expectativas.'
-        WHEN floor(random()*5)+1 = 4 THEN 'Muito bom, agregou bastante conhecimento.'
-        WHEN floor(random()*5)+1 = 3 THEN 'Evento bom, mas poderia ser mais dinâmico.'
-        WHEN floor(random()*5)+1 = 2 THEN 'Conteúdo razoável, faltou organização.'
-        ELSE 'Não atendeu totalmente às expectativas.'
-        END,
-    floor(random()*5)+1,
-    r.id
-FROM registrations r
-WHERE r.attended = TRUE
-    ON CONFLICT DO NOTHING;
+SELECT 'Excelente evento, muito proveitoso!',
+       (floor(random() * 3) + 3), -- Notas entre 3 e 5
+       r.id
+FROM registrations r LIMIT 50;
 
+-- 50 NOTIFICAÇÕES
+INSERT INTO notifications (user_id, event_id, title, message, type)
+SELECT u.id,
+       (SELECT id FROM events LIMIT 1),
+    'Lembrete de Evento',
+    'Olá! Não esqueça que seu evento começa em breve.',
+    'REMINDER'
+FROM users u LIMIT 50;
