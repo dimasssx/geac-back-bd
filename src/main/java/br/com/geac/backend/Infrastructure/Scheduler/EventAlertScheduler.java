@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Component
@@ -29,8 +30,8 @@ public class EventAlertScheduler {
 
     @Scheduled(cron = "0 0 * * * *")
     public void checkCloseEvents() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime eventTimeCheck = now.plusHours(24);
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime eventTimeCheck = now.plusHours(24);
 
         List<Event> closeEvents = eventService.getEventsBetween(now, eventTimeCheck);
 

@@ -7,17 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
-    List<Event> findAllByStartTimeBetween(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
+    List<Event> findAllByStartTimeBetween(ZonedDateTime startTimeAfter, ZonedDateTime startTimeBefore);
 
-    boolean existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(String title, UUID organizerId, LocalDateTime startTime);
+    boolean existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(String title, UUID organizerId, ZonedDateTime startTime);
 
     @Query("SELECT e, (SELECT COUNT(r) FROM Registration r WHERE r.event.id = e.id) as inscritos FROM Event e")
     List<Object[]> findAllWithRegistrationCount();
 
-    List<Event> findAllByStartTimeBeforeAndStatusNot(LocalDateTime startTimeBefore, EventStatus status);
+    List<Event> findAllByStartTimeBeforeAndStatusNot(ZonedDateTime startTimeBefore, EventStatus status);
 }
