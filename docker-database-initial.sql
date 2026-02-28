@@ -174,23 +174,28 @@ CREATE TABLE evaluations
     UNIQUE(registration_id)
 );
 
-CREATE OR REPLACE VIEW vw_horas_extracurriculares_aluno AS
+CREATE OR REPLACE VIEW vw_eventos_estatisticas AS
 SELECT
-    u.id AS student_id,
-    u.full_name AS student_name,
-    u.email AS student_email,
-    COUNT(c.id) AS total_certificados_emitidos,
-    COALESCE(SUM(e.workload_hours), 0) AS total_horas_acumuladas
-FROM users u
-         LEFT JOIN certificates c ON u.id = c.user_id
-         LEFT JOIN events e ON c.event_id = e.id
-WHERE u.user_type = 'STUDENT'
-GROUP BY u.id, u.full_name, u.email;
-
+    e.id AS event_id,
+    e.title AS event_title,
+    e.status AS event_status,
+    COUNT(DISTINCT r.id) AS total_inscritos,
+    SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END) AS total_presentes,
+    ROUND(AVG(ev.rating), 2) AS media_avaliacao
+FROM events e
+         LEFT JOIN registrations r ON e.id = r.event_id
+         LEFT JOIN evaluations ev ON r.id = ev.registration_id
+GROUP BY e.id, e.title, e.status;
 -- ============================================================
 -- USERS
 -- ============================================================
-
+INSERT INTO users (full_name, email, password_hash, user_type)
+VALUES (
+           'Administrador do Sistema',
+           'admin@geac.com',
+           '$2y$10$/5w0baJ/4H4MrN98n9Ika.T8mW8fOSJTr1MhKFp2E.QyPoh985ND2',
+           'ADMIN'
+       );
 INSERT INTO users (full_name, email, password_hash, user_type) VALUES
                                                                    ('Ana Clara Silva','ana.silva@email.com','123456','STUDENT'),
                                                                    ('João Pedro Santos','joao.santos@email.com','123456','STUDENT'),

@@ -45,14 +45,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/organizers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/organizers/*/members").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/organizers/*/members/**").hasRole("ADMIN")
-
                         //solicitações: exclusiva de professor/organizer/admin
                         .requestMatchers(HttpMethod.PUT, "/registrations/*/attendance/bulk").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/registrations/event/*").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
 
                         //solicitacoes: usuario comum pode apenas CRIAR a solicitação
                         .requestMatchers(HttpMethod.POST, "/organizer-requests").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements", "/organizers", "/organizers/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/categories", "/locations", "/requirements", "/organizers", "/organizers/**,","/views/**").authenticated()
 
                         //solicitações: ADMIN e organizer
                         .requestMatchers(HttpMethod.POST, "/categories","/events","/events/**")  .hasAnyRole("ADMIN","ORGANIZER")
