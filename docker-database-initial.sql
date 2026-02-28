@@ -174,6 +174,19 @@ CREATE TABLE evaluations
     UNIQUE(registration_id)
 );
 
+CREATE OR REPLACE VIEW vw_horas_extracurriculares_aluno AS
+SELECT
+    u.id AS student_id,
+    u.full_name AS student_name,
+    u.email AS student_email,
+    COUNT(c.id) AS total_certificados_emitidos,
+    COALESCE(SUM(e.workload_hours), 0) AS total_horas_acumuladas
+FROM users u
+         LEFT JOIN certificates c ON u.id = c.user_id
+         LEFT JOIN events e ON c.event_id = e.id
+WHERE u.user_type = 'STUDENT'
+GROUP BY u.id, u.full_name, u.email;
+
 -- ============================================================
 -- USERS
 -- ============================================================
