@@ -1,5 +1,6 @@
 package br.com.geac.backend.API.Controller;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Reponse.OrganizerResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.OrganizerRequestDTO;
 import br.com.geac.backend.Aplication.Services.OrganizerService;
