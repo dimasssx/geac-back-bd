@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,9 +17,9 @@ public record EventPatchRequestDTO(
         @URL(message = "O link online deve ser uma URL válida")
         String onlineLink,
         @Future(message = "A data de início deve ser no futuro")
-        ZonedDateTime startTime,
+        LocalDateTime startTime,
         @Future(message = "A data de término deve ser no futuro")
-        ZonedDateTime endTime,
+        LocalDateTime endTime,
 
         @Positive(message = "A carga horária deve ser de no mínimo 1 hora")
         Integer workloadHours,
