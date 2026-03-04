@@ -92,6 +92,7 @@ CREATE TABLE events
     end_time       TIMESTAMP    NOT NULL,
     workload_hours INTEGER      NOT NULL,
     max_capacity   INTEGER      NOT NULL,
+    days_before_notify VARCHAR(25) NOT NULL DEFAULT 'ONE_DAY_BEFORE' CHECK ( days_before_notify IN ('ONE_DAY_BEFORE', 'ONE_WEEK_BEFORE')),
 --     requirement_id INTEGER              NOT NULL REFERENCES requirements (id), -- ✅ REMOVIDO: O relacionamento de requisitos agora é muitos-para-muitos, então essa coluna foi removida --- IGNORE ---
     status         VARCHAR(20),      -- DEFAULT 'UPCOMING' CHECK ( status IN ('UPCOMING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED','CANCELLED') ),
     created_at     TIMESTAMP        DEFAULT NOW()

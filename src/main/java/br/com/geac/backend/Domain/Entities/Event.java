@@ -90,7 +90,7 @@ public class Event {
     )
     private Set<Speaker> speakers = new HashSet<>();
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) //trocar pra o numero dps se precisar
     public DaysBeforeNotify daysBeforeNotify;
 
 }
