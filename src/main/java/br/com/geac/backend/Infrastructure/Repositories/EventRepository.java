@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,4 +25,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Event> findAllByStartTimeBetweenAndDaysBeforeNotify(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore, Integer daysBeforeNotify);
 
     List<Event> findAllByStartTimeBetweenAndStatusNot(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore, EventStatus status);
+
+    List<Event> findAllByOrganizerId(UUID organizerId);
+
+    List<Event> findAllByOrganizerIdIn(Collection<UUID> organizerIds);
 }

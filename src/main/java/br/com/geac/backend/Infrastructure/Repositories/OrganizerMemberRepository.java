@@ -23,4 +23,6 @@ public interface OrganizerMemberRepository extends JpaRepository<OrganizerMember
 
 
     List<OrganizerMember> getAllByUserId(UUID userId);
+
+    List<OrganizerMember> findByUser(User user);
 }

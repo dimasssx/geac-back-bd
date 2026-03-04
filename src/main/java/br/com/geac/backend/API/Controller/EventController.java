@@ -4,11 +4,13 @@ import br.com.geac.backend.Aplication.DTOs.Reponse.EventResponseDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventPatchRequestDTO;
 import br.com.geac.backend.Aplication.DTOs.Request.EventRequestDTO;
 import br.com.geac.backend.Aplication.Services.EventService;
+import br.com.geac.backend.Domain.Entities.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +35,11 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    @GetMapping("/myorgsevents")
+    public ResponseEntity<List<EventResponseDTO>> getOrganizerEvents(@AuthenticationPrincipal User authenticatedUser) { //nao carrega contagem, creio q n vai bugar pq so pega por id no front
+        List<EventResponseDTO> events = eventService.getOrganizerEvents(authenticatedUser);
+        return ResponseEntity.ok(events);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDTO> getEventById(@PathVariable UUID id) {
         EventResponseDTO event = eventService.getEventById(id);
