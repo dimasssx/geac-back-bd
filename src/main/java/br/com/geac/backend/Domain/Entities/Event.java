@@ -1,5 +1,6 @@
 package br.com.geac.backend.Domain.Entities;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
 import br.com.geac.backend.Domain.Enums.EventStatus;
 import br.com.geac.backend.Domain.Enums.EventStatusConverter;
 import org.hibernate.annotations.ColumnDefault;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -44,10 +44,10 @@ public class Event {
     private String onlineLink;
 
     @Column(name = "start_time", nullable = false)
-    private ZonedDateTime startTime;
+    private LocalDateTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private ZonedDateTime endTime;
+    private LocalDateTime endTime;
 
     @Column(name = "workload_hours", nullable = false)
     private Integer workloadHours;
@@ -59,9 +59,6 @@ public class Event {
     @Convert(converter = EventStatusConverter.class)
     private EventStatus status = EventStatus.ACTIVE;
 
-//    @ColumnDefault("0")
-//    @Column(name = "registered_count", nullable = false)
-//    private Integer registeredCount = 0;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -89,4 +86,8 @@ public class Event {
             inverseJoinColumns = @JoinColumn(name = "speaker_id")
     )
     private Set<Speaker> speakers = new HashSet<>();
+
+    @Enumerated(EnumType.STRING) //trocar pra o numero dps se precisar
+    public DaysBeforeNotify daysBeforeNotify;
+
 }

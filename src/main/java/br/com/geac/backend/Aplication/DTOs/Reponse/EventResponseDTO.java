@@ -1,5 +1,6 @@
 package br.com.geac.backend.Aplication.DTOs.Reponse;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,9 @@ public record EventResponseDTO(
         Integer registeredCount,
         Boolean isRegistered,
         String userRegistrationStatus,
-        Boolean userAttended
+        Boolean userAttended,
+
+        DaysBeforeNotify daysBeforeNotify
 
 ) {
 }

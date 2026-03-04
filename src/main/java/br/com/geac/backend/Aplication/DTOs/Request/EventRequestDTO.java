@@ -1,10 +1,11 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -18,11 +19,11 @@ public record EventRequestDTO(
         String onlineLink,
         @NotNull(message = "A data de início é obrigatória")
         @Future(message = "A data de início deve ser no futuro")
-        ZonedDateTime startTime,
+        LocalDateTime startTime,
 
         @NotNull(message = "A data de término é obrigatória")
         @Future(message = "A data de término deve ser no futuro")
-        ZonedDateTime endTime,
+        LocalDateTime endTime,
 
         @NotNull(message = "A carga horária é obrigatória")
         @Min(value = 1, message = "A carga horária deve ser de no mínimo 1 hora")
@@ -50,6 +51,9 @@ public record EventRequestDTO(
         Set<Integer> speakers,
 
         @NotNull
-        UUID orgId
+        UUID orgId,
+
+        //por enquanto, passar 1 ou 7
+        DaysBeforeNotify daysBeforeNotify //requisito da historia, default é um dia
 ) {
 }

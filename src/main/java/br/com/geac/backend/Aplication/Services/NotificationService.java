@@ -33,7 +33,8 @@ public class NotificationService {
             notification.setCreatedAt(LocalDateTime.now());
             notification.setUser(user);
             notification.setType("REMINDER");
-            notification.setMessage("Seu evento começará em 24 horas");
+            String dealWithEventsDays = event.getDaysBeforeNotify().getDays() == 1 ? "24 horas" : "7 dias";
+            notification.setMessage("Seu evento começará em "+dealWithEventsDays);
             notification.setTitle(event.getTitle());
             notification.setRead(false);
             notificationRepository.save(notification);
