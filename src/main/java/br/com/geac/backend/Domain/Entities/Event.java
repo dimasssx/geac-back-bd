@@ -90,7 +90,7 @@ public class Event {
     )
     private Set<Speaker> speakers = new HashSet<>();
 
-    //adicionar no ddl
+    @Enumerated(EnumType.STRING)
     public DaysBeforeNotify daysBeforeNotify;
 
 }
