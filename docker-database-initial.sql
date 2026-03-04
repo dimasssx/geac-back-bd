@@ -93,10 +93,7 @@ CREATE TABLE events
     workload_hours INTEGER      NOT NULL,
     max_capacity   INTEGER      NOT NULL,
 --     requirement_id INTEGER              NOT NULL REFERENCES requirements (id), -- ✅ REMOVIDO: O relacionamento de requisitos agora é muitos-para-muitos, então essa coluna foi removida --- IGNORE ---
-
-    status         VARCHAR(20)      DEFAULT 'UPCOMING' CHECK ( status IN
-                                                               ('UPCOMING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED',
-                                                                'CANCELLED') ),
+    status         VARCHAR(20),      -- DEFAULT 'UPCOMING' CHECK ( status IN ('UPCOMING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED','CANCELLED') ),
     created_at     TIMESTAMP        DEFAULT NOW()
 );
 
@@ -203,25 +200,54 @@ FROM events e
          LEFT JOIN evaluations ev ON r.id = ev.registration_id
 GROUP BY e.id, e.title, e.status;
 
-CREATE OR REPLACE VIEW vw_engajamento_organizacoes AS
-SELECT
-    o.id AS organizer_id,
-    o.name AS organizer_name,
-    COUNT(DISTINCT e.id) AS total_eventos_realizados,
-    COALESCE(SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END), 0) AS total_participantes_engajados
+CREATE
+OR REPLACE VIEW vw_engajamento_organizacoes AS
+SELECT o.id                                                            AS organizer_id,
+       o.name                                                          AS organizer_name,
+       COUNT(DISTINCT e.id)                                            AS total_eventos_realizados,
+       COALESCE(SUM(CASE WHEN r.attended = TRUE THEN 1 ELSE 0 END), 0) AS total_participantes_engajados
 FROM organizers o
          LEFT JOIN events e ON o.id = e.organizer_id
          LEFT JOIN registrations r ON e.id = r.event_id
 GROUP BY o.id, o.name;
 
-INSERT INTO users (full_name, email, password_hash, user_type)
-VALUES ('Administrador do Sistema',
-        'admin@geac.com',
-        '$2y$10$/5w0baJ/4H4MrN98n9Ika.T8mW8fOSJTr1MhKFp2E.QyPoh985ND2',
-        'ADMIN');
+
+-- POVOAMENTO
+
+INSERT INTO public.users (id, full_name, email, password_hash, user_type, created_at)
+VALUES ('f7d2e9b8-31a4-4c5d-92e1-8b0f7a63c294', 'Administrador 2', 'admin@geac.com',
+        '$2y$10$/5w0baJ/4H4MrN98n9Ika.T8mW8fOSJTr1MhKFp2E.QyPoh985ND2', 'ADMIN', NOW()),
+       ('be89dede-00f2-48eb-880b-c9b728ce5bfc', 'student1', 'student1@test.com',
+        '$2a$10$kXz14cSQ4CuM8ev7MKWtQu1/4Ny7v/ic5xuQxgwZzh.x9ZHLuxOM2', 'STUDENT', NOW()),
+       ('b82120cf-41a7-406a-b52d-259cdbef3041', 'student2', 'student2@test.com',
+        '$2a$10$.bW0KlZDt.tkGrj6xxTgL./OoUtYrmaq3re.ABGjN7u4pHnnl.k3G', 'STUDENT', NOW()),
+       ('5c0a92a1-b445-4e4b-807c-6fbca67b9092', 'student3', 'student3@test.com',
+        '$2a$10$TTE/WAR4tTdILrWFdC7aDOT1lJzwHpNVY8MYBiHkw1q6Ki3oQFy7G', 'STUDENT', NOW()),
+       ('9be3d05c-7638-4f78-814a-ce4c21463262', 'student4', 'student4@test.com',
+        '$2a$10$6R/amLD0hO1oMDMyCSiA4.jCJgcKuPgYFv9wxpmLt9d0Fx/YXyR9q', 'STUDENT', NOW()),
+       ('286c2d18-9814-4d88-a55d-14bacaefcf49', 'student5', 'student5@test.com',
+        '$2a$10$kWOVCbnEdBKwoirx8IvxxuBC1r5TS8O8/ekLd1JkAKlVvW6rDLajy', 'STUDENT', NOW()),
+       ('073b9076-2317-4511-a9c3-535654e75363', 'professor1', 'professor1@test.com',
+        '$2a$10$UAH/nCUUYJ6Cklr79GLUVuY91SBHZh.JmyP/Id6NdnTBvhG6m5Vma', 'PROFESSOR', NOW()),
+       ('be4999bf-6d31-4414-a0a6-ae61d53a6387', 'professor2', 'professor2@test.com',
+        '$2a$10$MOljMoo4PYuoz4yzBJK8K.tW/2iBtWFcFUkZv8d5RuGfIMikJITDu', 'PROFESSOR', NOW()),
+       ('54307ac7-8117-42c3-abc2-a74b112979c3', 'professor3', 'professor3@test.com',
+        '$2a$10$q0K2zMKAZ2w0XRTektFvcO1TiQ1IKFTSp.biRbH6W9.uL5IcFDrgG', 'PROFESSOR', NOW()),
+       ('e6137fdc-6fc2-4776-8616-9e238c1b48a7', 'admin', 'admin@admin.com',
+        '$2a$10$/h/iWZLAhU4PfZmTew1nl.6xfNP4ymHEu5zSWXGhGIsce41x7p146', 'ADMIN', NOW());
 -- 50 CATEGORIAS
 INSERT INTO categories (name, description)
-VALUES ('Programação Web', 'Desenvolvimento de sites e sistemas web.'),
+VALUES ('hackathon', 'Competições intensivas de programação e inovação para solução de desafios.'),
+       ('palestra', 'Apresentações curtas e focadas sobre temas específicos com especialistas.'),
+       ('seminario', 'Encontros acadêmicos ou profissionais para discussão aprofundada de estudos.'),
+       ('cultural', 'Eventos artísticos, exposições, teatro, música e expressões populares.'),
+       ('feira', 'Exposições comerciais, networking e demonstração de produtos ou serviços.'),
+       ('workshop', 'Atividades práticas e treinamentos para desenvolvimento de habilidades.'),
+       ('livre', 'Eventos de formato aberto, lazer ou sem uma estrutura rígida pré-definida.'),
+       ('conferencia', 'Grandes reuniões formais com múltiplos palestrantes e debates temáticos.'),
+       ('festival', 'Celebrações amplas com diversas atividades simultâneas e entretenimento.'),
+       ('outro', 'Categorias que não se enquadram nas definições anteriores.'),
+       ('Programação Web', 'Desenvolvimento de sites e sistemas web.'),
        ('Saúde Coletiva', 'Estudos e práticas sobre saúde pública.'),
        ('Empreendedorismo', 'Inovação e novos modelos de negócio.'),
        ('Inteligência Artificial', 'Machine learning e redes neurais.'),
@@ -275,167 +301,333 @@ VALUES ('Programação Web', 'Desenvolvimento de sites e sistemas web.'),
 
 -- 50 REQUISITOS (EXEMPLOS)
 INSERT INTO requirements (description)
-SELECT 'Requisito de Conhecimento Nível ' || i
-FROM generate_series(1, 50) i;
+VALUES ('Trazer notebook'),
+       ('$5 para corpo docente/funcionários'),
+       ('Aberto a todos os alunos e corpo docente'),
+       ('Aberto a todos os estudantes'),
+       ('Conhecimento básico de marketing é útil'),
+       ('Entrada gratuita'),
+       ('Estudantes: grátis'),
+       ('Inscrição necessária para vales-alimentação'),
+       ('Recomendado entendimento básico de criptomoedas'),
+       ('Recomendado para estudantes de Ciências Ambientais e áreas relacionadas'),
+       ('Traje esporte fino recomendado'),
+       ('Trazer currículos impressos');
 
 -- 50 TAGS
 INSERT INTO tags (name)
-VALUES ('#Java'),
-       ('#Python'),
-       ('#React'),
-       ('#Medicina'),
-       ('#Direito'),
-       ('#UX'),
-       ('#Agile'),
-       ('#Cloud'),
-       ('#DevOps'),
-       ('#DataScience'),
-       ('#Sprint'),
-       ('#Inovação'),
-       ('#RecifeTech'),
-       ('#CaruaruNegocios'),
-       ('#SurubimCriativo'),
-       ('#Saude'),
-       ('#Educação'),
-       ('#Workshop'),
-       ('#Hackathon'),
-       ('#Palestra'),
-       ('#BackEnd'),
-       ('#FrontEnd'),
-       ('#FullStack'),
-       ('#Mobile'),
-       ('#Security'),
-       ('#AI'),
-       ('#ML'),
-       ('#BigData'),
-       ('#IoT'),
-       ('#Blockchain'),
-       ('#Marketing'),
-       ('#SEO'),
-       ('#SocialMedia'),
-       ('#Design'),
-       ('#Figma'),
-       ('#NodeJS'),
-       ('#SQL'),
-       ('#NoSQL'),
-       ('#Docker'),
-       ('#Kubernetes'),
-       ('#Networking'),
-       ('#SoftSkills'),
-       ('#Leadership'),
-       ('#Ethics'),
-       ('#GreenTech'),
-       ('#Fintech'),
-       ('#EdTech'),
-       ('#HealthTech'),
-       ('#LegalTech'),
-       ('#BioTech');
+VALUES ('apoio'),
+       ('artes'),
+       ('bem-estar'),
+       ('blockchain'),
+       ('carreira'),
+       ('ciência'),
+       ('clima'),
+       ('criptomoedas'),
+       ('cultura'),
+       ('digital'),
+       ('diversidade'),
+       ('empregos'),
+       ('estudantes'),
+       ('festival'),
+       ('finanças'),
+       ('ia'),
+       ('inovação'),
+       ('internacional'),
+       ('marketing'),
+       ('meio ambiente'),
+       ('música'),
+       ('negócios'),
+       ('networking'),
+       ('performance'),
+       ('rock'),
+       ('saúde mental'),
+       ('sustentabilidade'),
+       ('tecnologia'),
+       ('workshop');
+
 
 -- 50 USUÁRIOS (Alguns ADMIN, alguns STUDENT, alguns ORGANIZER)
-INSERT INTO users (full_name, email, password_hash, user_type)
-SELECT 'Usuário Exemplo ' || i,
-       'usuario' || i || '@email.com',
-       '$2a$10$8K1p/aP2Wq...', -- Hash fictício
-       CASE WHEN i % 3 = 0 THEN 'ADMIN' WHEN i % 3 = 1 THEN 'STUDENT' ELSE 'ORGANIZER' END
-FROM generate_series(1, 50) i;
 
--- 50 PALESTRANTES
+-- palestrantes -> tem que ser 50 dps todo
+
 INSERT INTO speakers (name, bio, email)
-SELECT 'Palestrante ' || i,
-       'Especialista com mais de 10 anos de experiência na área de atuação.',
-       'speaker' || i || '@expert.com'
-FROM generate_series(1, 50) i;
+VALUES ('Dr. Alan Turing', 'Pai da computação e especialista em IA.', 'alan.turing@example.com'),
+       ('Dra. Marie Curie', 'Pesquisadora em física e química.', 'marie.curie@example.com'),
+       ('Grace Hopper', 'Pioneira na programação e criadora do COBOL.', 'grace.hopper@example.com'),
+       ('Nikola Tesla', 'Inovador em sistemas de energia elétrica.', 'nikola.tesla@example.com'),
+       ('Ada Lovelace', 'Primeira programadora da história.', 'ada.lovelace@example.com'),
+       ('Richard Feynman', 'Físico teórico e Nobel de Física.', 'richard.feynman@example.com'),
+       ('Margaret Hamilton', 'Diretora de engenharia de software da missão Apollo.', 'margaret.hamilton@example.com'),
+       ('Carl Sagan', 'Astrofísico e divulgador científico.', 'carl.sagan@example.com'),
+       ('Hedy Lamarr', 'Inventora da base para o Wi-Fi e Bluetooth.', 'hedy.lamarr@example.com'),
+       ('Steve Wozniak', 'Cofundador da Apple e engenheiro de hardware.', 'steve.wozniak@example.com');
 
--- 50 ORGANIZADORES
-INSERT INTO organizers (name, contact_email)
-SELECT 'Centro Acadêmico de ' || c.name,
-       'contato@organizador' || c.id || '.com'
-FROM categories c LIMIT 50;
+-- QUALIFICATIONS TODO
+INSERT INTO speaker_qualifications (speaker_id, title_name, institution)
+VALUES (1, 'Doutorado em Matemática', 'University of Cambridge'),
+       (2, 'Nobel de Química', 'Sorbonne University'),
+       (3, 'PHD em Matemática', 'Yale University'),
+       (4, 'Engenheiro Elétrico', 'Graz University of Technology'),
+       (5, 'Especialista em Algoritmos', 'University of London'),
+       (6, 'Doutorado em Física', 'Princeton University'),
+       (7, 'Especialista em Software de Sistemas', 'MIT'),
+       (8, 'Doutorado em Astrofísica', 'University of Chicago'),
+       (9, 'Inventora de Espectro de Difusão', 'National Inventors Hall of Fame'),
+       (10, 'Engenheiro de Computação', 'UC Berkeley');
 
--- 50 LOCALIZAÇÕES (Distribuídas entre os campi do Enum)
-INSERT INTO locations (name, street, number, neighborhood, city, state, zip_code, campus, capacity)
-VALUES ('Auditório Principal Surubim', 'Rua João Batista', '100', 'Centro', 'Surubim', 'PE', '55750-000',
-        'Campus Surubim Central', 200),
-       ('Laboratório de Informática A', 'Av. Agamenon Magalhães', '250', 'Maurício de Nassau', 'Caruaru', 'PE',
-        '55012-000', 'Campus Caruaru Inovação', 40),
-       ('Sala de Conferências Recife', 'Av. Boa Viagem', '1500', 'Boa Viagem', 'Recife', 'PE', '51020-000',
-        'Campus Recife Alfa', 150),
-       ('Bloco de Saúde Beta', 'Rua do Hospício', '50', 'Boa Vista', 'Recife', 'PE', '50060-000', 'Campus Recife Saúde',
-        100),
-       ('Espaço Criativo Delta', 'Rua Oscar Loureiro', '12', 'Coqueiral', 'Surubim', 'PE', '55750-000',
-        'Campus Surubim Criativo', 60),
--- ... (Gerando mais 45 variações baseadas no seu Enum)
-       ('Auditório Sul Caruaru', 'Rua Josefa Taveira', '99', 'Salgado', 'Caruaru', 'PE', '55016-000',
-        'Campus Caruaru Sul', 120),
-       ('Sala de Pós-Graduação', 'Av. Caxangá', '2000', 'Caxangá', 'Recife', 'PE', '50711-000',
-        'Campus Recife Pós-Graduação', 30),
-       ('Centro de Convenções Norte', 'Rua da Aurora', '500', 'Santo Amaro', 'Recife', 'PE', '50040-000',
-        'Campus Recife Norte', 500);
--- (Nota: Para completar 50, o ideal é rodar um loop ou replicar mudando o campus conforme sua lista de Enums)
+-- Insert 5 organizers
+INSERT INTO public.organizers (id, name, contact_email)
+VALUES ('a1111111-1111-1111-1111-111111111111', 'Departamento de Ciências da Computação', 'cs.dept@university.edu'),
+       ('a2222222-2222-2222-2222-222222222222', 'Centro Estudantil de Atividades', 'student.activities@university.edu'),
+       ('a3333333-3333-3333-3333-333333333333', 'Instituto de Pesquisa Ambiental',
+        'environmental.research@university.edu'),
+       ('a4444444-4444-4444-4444-444444444444', 'Serviços de Carreira e Desenvolvimento',
+        'career.services@university.edu'),
+       ('a5555555-5555-5555-5555-555555555555', 'Departamento de Estudos Culturais', 'cultural.studies@university.edu');
 
--- Populando as demais 42 localizações automaticamente para garantir o volume:
-INSERT INTO locations (name, street, number, neighborhood, city, state, zip_code, campus, capacity)
-SELECT 'Sala ' || i,
-       'Rua Exemplo ' || i,
-       i * 2,
-       'Bairro ' || i,
-       CASE WHEN i % 3 = 0 THEN 'Recife' WHEN i % 3 = 1 THEN 'Caruaru' ELSE 'Surubim' END,
-       'PE',
-       '55000-000',
-       (ARRAY['Campus Surubim Alfa', 'Campus Recife Beta', 'Campus Caruaru Central', 'Campus Surubim Inovação',
-        'Campus Recife Saúde'])[floor(random()*5)+1],
-    50
-FROM generate_series(6, 50) i;
+--  LOCALIZAÇÕES
+INSERT INTO public.locations (name, street, number, neighborhood, city, state, zip_code, campus, reference_point,
+                              capacity)
+VALUES ('Laboratório de Informática 01', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Central', 'Prédio Principal', 40),
+       ('Sala de Aula 101', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Norte',
+        'Bloco A', 50),
+       ('Sala de Aula 102', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Leste',
+        'Bloco A', 50),
+       ('Sala de Aula 103', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Sul',
+        'Bloco A', 50),
+       ('Sala de Aula 104', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Oeste',
+        'Bloco A', 50),
+       ('Sala de Aula 201', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Alfa',
+        'Bloco B', 60),
+       ('Sala de Aula 202', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Beta',
+        'Bloco B', 60),
+       ('Laboratório de Química', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Gama', 'Prédio de Ciências', 30),
+       ('Laboratório de Física', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Central', 'Prédio de Ciências', 30),
+       ('Laboratório de Biologia', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Norte', 'Prédio de Ciências', 35),
+       ('Auditório Principal', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Sul',
+        'Térreo', 250),
+       ('Mini Auditório', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Leste',
+        'Bloco C', 80),
+       ('Biblioteca Central', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Oeste',
+        'Prédio Anexo', 150),
+       ('Sala de Estudos 01', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Alfa',
+        'Dentro da Biblioteca', 20),
+       ('Sala de Estudos 02', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Beta',
+        'Dentro da Biblioteca', 20),
+       ('Sala de Reuniões Coordenação', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Gama', 'Prédio Administrativo', 15),
+       ('Quadra Poliesportiva', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Central', 'Área Externa', 500),
+       ('Espaço Maker', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000', 'Campus Surubim Inovação',
+        'Prédio de Inovação', 45),
+       ('Estúdio de Gravação', 'Rua das Flores', '123', 'Centro', 'Surubim', 'PE', '55750-000',
+        'Campus Surubim Criativo', 'Prédio de Comunicação', 10),
+       ('Laboratório de Redes', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Norte', 'Bloco 1', 40),
+       ('Laboratório de Hardware', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Leste', 'Bloco 1', 35),
+       ('Sala de Aula 301', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000', 'Campus Recife Sul',
+        'Bloco 2', 55),
+       ('Sala de Aula 302', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Oeste', 'Bloco 2', 55),
+       ('Sala de Aula 303', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Central', 'Bloco 2', 55),
+       ('Auditório Paulo Freire', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Alfa', 'Térreo', 300),
+       ('Sala de Videoconferência', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Beta', 'Bloco 1', 25),
+       ('Laboratório de Robótica', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Gama', 'Bloco 3', 30),
+       ('Sala de Metodologias Ativas 1', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Inovação', 'Bloco 3', 40),
+       ('Sala de Metodologias Ativas 2', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Criativo', 'Bloco 3', 40),
+       ('Biblioteca Setorial', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Central', 'Bloco 4', 100),
+       ('Laboratório de Enfermagem', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Saúde', 'Bloco Saúde', 30),
+       ('Laboratório de Anatomia', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000',
+        'Campus Recife Saúde', 'Bloco Saúde', 40),
+       ('Clínica Escola', 'Av. Agamenon Magalhães', 'S/N', 'Derby', 'Recife', 'PE', '52010-000', 'Campus Recife Saúde',
+        'Bloco Saúde', 50),
+       ('Sala de Aula 401', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Leste', 'Bloco A', 60),
+       ('Sala de Aula 402', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Sul', 'Bloco A', 60),
+       ('Sala de Aula 403', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Oeste', 'Bloco A', 60),
+       ('Laboratório de Design', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Criativo', 'Bloco B', 35),
+       ('Laboratório de Moda', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Criativo', 'Bloco B', 30),
+       ('Ateliê de Costura', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Criativo', 'Bloco B', 25),
+       ('Sala de Desenho', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Alfa', 'Bloco B', 40),
+       ('Auditório Ariano Suassuna', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Central', 'Central', 200),
+       ('Laboratório de Informática 03', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Beta', 'Bloco C', 40),
+       ('Laboratório de Informática 04', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Gama', 'Bloco C', 40),
+       ('Sala de Reuniões Professores', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Delta', 'Administrativo', 20),
+       ('Espaço de Convivência', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Central', 'Externo', 150),
+       ('Laboratório de Fotografia', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Inovação', 'Bloco D', 20),
+       ('Estúdio de Áudio', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Inovação', 'Bloco D', 15),
+       ('Sala de Defesas', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Pós-Graduação', 'Bloco Pós', 35),
+       ('Laboratório Maker Avançado', 'Rodovia BR-104', 'Km 68', 'Nova Caruaru', 'Caruaru', 'PE', '55014-000',
+        'Campus Caruaru Inovação', 'Inovação', 40);
 
 
--- 50 EVENTOS
-INSERT INTO events (organizer_id, category_id, location_id, title, description, start_time, end_time, workload_hours,
-                    max_capacity, status)
-SELECT (SELECT id FROM organizers OFFSET (i-1) LIMIT 1),
-    (SELECT id FROM categories OFFSET (i-1) LIMIT 1),
-    (SELECT id FROM locations OFFSET (i-1) LIMIT 1),
-    'Evento de ' || (SELECT name FROM categories OFFSET (i-1) LIMIT 1),
-    'Uma imersão completa sobre o tema, com foco em práticas de mercado e networking.',
-    NOW() + (i || ' days')::interval,
-    NOW() + (i || ' days 4 hours')::interval,
-    4,
-    (SELECT capacity FROM locations OFFSET (i-1) LIMIT 1),
-    'UPCOMING'
-FROM generate_series(1, 50) i;
 
--- 50 EVENT_SPEAKERS (Relacionando eventos aos palestrantes)
+
+-- 2. EVENTOS (Com IDs de organizadores corrigidos)
+-- ==========================================
+INSERT INTO public.events (id, organizer_id, category_id, location_id, title, description, online_link, start_time,
+                           end_time, workload_hours, max_capacity, status, created_at)
+VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-111111111111', 2, 1,
+        'Inteligência Artificial e o Futuro do Trabalho',
+        'Junte-se a nós para uma palestra esclarecedora sobre como a IA está transformando o local de trabalho...',
+        'https://example.com/ia-futuro-trabalho', '2026-02-20 14:00:00.000000', '2026-02-20 16:00:00.000000', 2, 200,
+        'upcoming', NOW()),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 'a5555555-5555-5555-5555-555555555555', 4, 18,
+        'Festival Cultural Internacional 2026',
+        'Experimente uma celebração da diversidade com apresentações, comida e exposições de mais de 30 países...',
+        NULL, '2026-03-15 10:00:00.000000', '2026-03-15 18:00:00.000000', 8, 1000, 'upcoming', NOW()),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 'a3333333-3333-3333-3333-333333333333', 3, 26,
+        'Mudanças Climáticas: Ciência e Ação',
+        'Uma série abrangente de seminários com os principais cientistas climáticos e ativistas ambientais...',
+        'https://example.com/mudancas-climaticas', '2026-02-28 09:00:00.000000', '2026-02-28 13:00:00.000000', 4, 100,
+        'upcoming', NOW()),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 'a4444444-4444-4444-4444-444444444444', 5, 42,
+        'Feira de Carreiras 2026: Tecnologia e Inovação',
+        'Encontre-se com representantes de mais de 50 empresas líderes em tecnologia...',
+        'https://example.com/feira-carreiras', '2026-03-05 11:00:00.000000', '2026-03-05 17:00:00.000000', 6, 500,
+        'upcoming', NOW()),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 'a2222222-2222-2222-2222-222222222222', 6, 13,
+        'Workshop de Estratégias de Marketing Digital',
+        'Workshop prático cobrindo marketing em mídias sociais, SEO, criação de conteúdo e análise de dados...',
+        'https://example.com/workshop-marketing', '2026-02-25 15:00:00.000000', '2026-02-25 18:00:00.000000', 3, 50,
+        'upcoming', NOW()),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 'a2222222-2222-2222-2222-222222222222', 3, 17,
+        'Seminário de Saúde Mental e Bem-Estar',
+        'Uma discussão importante sobre saúde mental estudantil, técnicas de gerenciamento de estresse...',
+        'https://example.com/saude-mental', '2026-02-18 16:00:00.000000', '2026-02-18 18:00:00.000000', 2, 80,
+        'upcoming', NOW()),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 'a5555555-5555-5555-5555-555555555555', 4, 12,
+        'Noite de Rock na Universidade',
+        'Desfrute de uma noite de música rock ao vivo apresentada pelo Conjunto de Pseudo Músicos...',
+        'https://example.com/noite-rock', '2026-03-10 19:00:00.000000', '2026-03-10 21:30:00.000000', 2.5, 250,
+        'cancelled', NOW()),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-111111111111', 8, 19,
+        'Conferência sobre Blockchain e Criptomoedas',
+        'Explore o mundo da tecnologia blockchain, mercados de criptomoedas e finanças descentralizadas...',
+        'https://example.com/conferencia-blockchain', '2026-03-22 10:00:00.000000', '2026-03-22 16:00:00.000000', 6,
+        150,
+        'upcoming', NOW());
+-- Insert event tags
+INSERT INTO public.event_tags (event_id, tag_id)
+VALUES -- Evento 1 (Inteligência Artificial)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 5),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 16),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 17),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 28),
+       -- Evento 2 (Festival Cultural)
+       ('e2222222-d628-46ef-b838-b66d4758b966', 9),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 11),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 14),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 18),
+       -- Evento 3 (Mudanças Climáticas)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 6),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 7),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 20),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 27),
+       -- Evento 4 (Feira de Carreiras)
+       ('e4444444-d628-46ef-b838-b66d4758b966', 5),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 12),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 23),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 28),
+       -- Evento 5 (Workshop de Marketing)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 10),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 19),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 22),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 29),
+       -- Evento 6 (Seminário de Saúde Mental)
+       ('e6666666-d628-46ef-b838-b66d4758b966', 1),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 3),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 13),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 26),
+       -- Evento 7 (Noite de Rock)
+       ('e7777777-d628-46ef-b838-b66d4758b966', 2),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 21),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 24),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 25),
+       -- Evento 8 (Conferência sobre Blockchain)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 4),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 8),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 15),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 28);
+
 INSERT INTO event_speakers (event_id, speaker_id)
-SELECT e.id, s.id
-FROM (SELECT id FROM events LIMIT 50) e
-         CROSS JOIN (SELECT id FROM speakers LIMIT 1) s;
--- Cada evento com ao menos 1 palestrante
+VALUES -- Evento de IA (e153c21a...) com Alan Turing (ID 1)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 1),
+       -- Evento de IA com Margaret Hamilton (ID 7)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 7),
+       -- Mudanças Climáticas (e3333333...) com Carl Sagan (ID 8)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 8),
+       -- Workshop de Marketing (e5555555...) com Steve Wozniak (ID 10)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 10),
+       -- Conferência Blockchain (e8888888...) com Hedy Lamarr (ID 9)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 9);
 
--- 50 REGISTRATIONS (Inscrições de alunos nos eventos)
-INSERT INTO registrations (user_id, event_id, registration_date)
-SELECT (SELECT id FROM users WHERE user_type = 'STUDENT' LIMIT 1 OFFSET (i % 10)),
-    (SELECT id FROM events LIMIT 1 OFFSET (i-1)),
-    NOW()
-FROM generate_series(1, 50) i;
-
--- 50 CERTIFICADOS
-INSERT INTO certificates (user_id, event_id, validation_code)
-SELECT r.user_id,
-       r.event_id,
-       'VALID-' || r.id
-FROM registrations r LIMIT 50;
-
--- 50 AVALIAÇÕES
-INSERT INTO evaluations (comment, rating, registration_id)
-SELECT 'Excelente evento, muito proveitoso!',
-       (floor(random() * 3) + 3), -- Notas entre 3 e 5
-       r.id
-FROM registrations r LIMIT 50;
-
--- 50 NOTIFICAÇÕES
-INSERT INTO notifications (user_id, event_id, title, message, type)
-SELECT u.id,
-       (SELECT id FROM events LIMIT 1),
-    'Lembrete de Evento',
-    'Olá! Não esqueça que seu evento começa em breve.',
-    'REMINDER'
-FROM users u LIMIT 50;
+INSERT INTO public.event_requirements (event_id, requirement_id)
+VALUES -- Evento 1 (Inteligência Artificial)
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 1),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 5),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 6),
+       ('e153c21a-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 2 (Festival Cultural)
+       ('e2222222-d628-46ef-b838-b66d4758b966', 3),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 4),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 8),
+       ('e2222222-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 3 (Mudanças Climáticas)
+       ('e3333333-d628-46ef-b838-b66d4758b966', 1),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 2),
+       ('e3333333-d628-46ef-b838-b66d4758b966', 3),
+       -- Evento 4 (Feira de Carreiras)
+       ('e4444444-d628-46ef-b838-b66d4758b966', 4),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 5),
+       ('e4444444-d628-46ef-b838-b66d4758b966', 6),
+       -- Evento 5 (Workshop de Marketing)
+       ('e5555555-d628-46ef-b838-b66d4758b966', 7),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 8),
+       ('e5555555-d628-46ef-b838-b66d4758b966', 9),
+       -- Evento 6 (Seminário de Saúde Mental)
+       ('e6666666-d628-46ef-b838-b66d4758b966', 10),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 11),
+       ('e6666666-d628-46ef-b838-b66d4758b966', 12),
+       -- Evento 7 (Noite de Rock)
+       ('e7777777-d628-46ef-b838-b66d4758b966', 1),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 2),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 3),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 4),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 5),
+       ('e7777777-d628-46ef-b838-b66d4758b966', 6),
+       -- Evento 8 (Conferência sobre Blockchain)
+       ('e8888888-d628-46ef-b838-b66d4758b966', 7),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 8),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 9),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 10),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 11),
+       ('e8888888-d628-46ef-b838-b66d4758b966', 12);
