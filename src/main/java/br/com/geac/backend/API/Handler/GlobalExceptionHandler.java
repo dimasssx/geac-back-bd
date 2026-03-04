@@ -16,6 +16,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -52,13 +55,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
+        Map<String, String> errorFields = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach((error) -> {
+            errorFields.put(error.getField(), error.getDefaultMessage());
+        });
+
         return new ResponseEntity<>(
                 ExceptionDetails.builder()
-                        .title("BAD REQUEST")
+                        .title("BAD REQUEST, invalid fields")
                         .status(HttpStatus.BAD_REQUEST.value())
                         .timestamp(LocalDateTime.now())
-                        .details(ex.getClass().getSimpleName())
-                        .message("Bad Request: check the fields and try again.")
+                        .details(ex.getMessage().getClass().getSimpleName())
+                        .message(errorFields)
                         .build(), HttpStatus.BAD_REQUEST
         );
     }
