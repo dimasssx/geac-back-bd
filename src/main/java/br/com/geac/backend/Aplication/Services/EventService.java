@@ -221,6 +221,6 @@ public class EventService {
         return !now.isBefore(notificationTime.minusHours(1)) && !now.isAfter(notificationTime.plusHours(1)) ;
     }
     public List<Event> getPastEvents(LocalDateTime now) {
-        return eventRepository.findAllByStartTimeBeforeAndStatusNot(LocalDateTime.now().minusMinutes(1), EventStatus.COMPLETED);
+        return eventRepository.findAllByStartTimeBeforeAndStatusNot(now.minusMinutes(1), EventStatus.COMPLETED);
     }
 }
