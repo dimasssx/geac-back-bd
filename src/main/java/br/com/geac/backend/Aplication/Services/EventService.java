@@ -205,10 +205,21 @@ public class EventService {
                 .orElseThrow(() -> new EventNotFoundException("Evento não encontrado com o ID: " + id));
     }
 
-    public List<Event> getEventsBetween(LocalDateTime now, LocalDateTime eventDate) {
-        return eventRepository.findAllByStartTimeBetween(now, eventDate);
-    }
+    public List<Event> getReadyToNotifyEvents() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Event> upcomingEvents = eventRepository.findAllByStartTimeBetweenAndStatusNot(now, now.plusDays(7),EventStatus.COMPLETED);
 
+        return upcomingEvents.stream()
+                .filter(event -> shouldNotify(event,now))
+                .toList();
+    }
+    /*
+    * Verifica se a hora atual está na janela de tempo de quando o evento deveria ser notificado
+     */
+    private boolean shouldNotify(Event event, LocalDateTime now) {
+        LocalDateTime notificationTime = event.getStartTime().minusDays(event.getDaysBeforeNotify().getDays());
+        return !now.isBefore(notificationTime.minusHours(1)) && !now.isAfter(notificationTime.plusHours(1)) ;
+    }
     public List<Event> getPastEvents(LocalDateTime now) {
         return eventRepository.findAllByStartTimeBeforeAndStatusNot(LocalDateTime.now().minusMinutes(1), EventStatus.COMPLETED);
     }

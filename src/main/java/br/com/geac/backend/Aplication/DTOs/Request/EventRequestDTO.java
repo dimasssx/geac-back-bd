@@ -1,5 +1,7 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
@@ -49,6 +51,9 @@ public record EventRequestDTO(
         Set<Integer> speakers,
 
         @NotNull
-        UUID orgId
+        UUID orgId,
+
+        //por enquanto, passar 1 ou 7
+        DaysBeforeNotify daysBeforeNotify //requisito da historia, default é um dia
 ) {
 }

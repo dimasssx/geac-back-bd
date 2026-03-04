@@ -1,5 +1,6 @@
 package br.com.geac.backend.Aplication.DTOs.Request;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -30,6 +31,7 @@ public record EventPatchRequestDTO(
         Set<Integer> tags,
         Integer locationId,
         Set<Integer> speakers,
-        UUID orgId
+        UUID orgId,
+        DaysBeforeNotify daysBeforeNotify
 ) {
 }

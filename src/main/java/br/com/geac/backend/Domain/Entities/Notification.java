@@ -3,6 +3,7 @@ package br.com.geac.backend.Domain.Entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications")
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
+
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -27,4 +29,6 @@ public class Notification {
     private String message;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+
 }

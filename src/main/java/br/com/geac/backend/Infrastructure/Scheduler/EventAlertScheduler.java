@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,29 +28,33 @@ public class EventAlertScheduler {
 
     @Scheduled(cron = "0 0 * * * *")
     public void checkCloseEvents() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime eventTimeCheck = now.plusHours(24);
 
-        List<Event> closeEvents = eventService.getEventsBetween(now, eventTimeCheck);
+        List<Event> closeEvents = eventService.getReadyToNotifyEvents();
+
+        if (closeEvents.isEmpty()) log.info("No Events Ready for notification");
 
         for (Event event : closeEvents) {
-
-            var registrationsByEvent = registrationService.getUnotifiedRegistrationsById(event.getId());
-            if (registrationsByEvent.isEmpty()) {
-                continue;
-            }
-            List<User> users = registrationsByEvent.stream()
-                    .map(Registration::getUser)
-                    .toList();
-
-            notificationService.notifyAll(users, event);
-            registrationsByEvent.forEach(registration -> registration.setNotified(true));
-            registrationService.saveAll(registrationsByEvent);
-
-
+            notifyEventsParticipants(event);
         }
 
+        log.info("Notified {} events",closeEvents.size());
+    }
 
+    private void notifyEventsParticipants(Event event) {
+        var registrationsByEvent = registrationService.getUnotifiedRegistrationsById(event.getId());
+
+        if (registrationsByEvent.isEmpty()) {
+            log.info("No Registrations for event {}", event.getTitle());
+            return;
+        }
+        List<User> users = registrationsByEvent.stream()
+                .map(Registration::getUser)
+                .toList();
+
+        notificationService.notifyAll(users, event);
+
+        registrationsByEvent.forEach(registration -> registration.setNotified(true));
+        registrationService.saveAll(registrationsByEvent);
     }
 
     @Scheduled(cron = "0 */30 * * * *")
@@ -61,11 +64,11 @@ public class EventAlertScheduler {
         List<Event> endEvents = eventService.getPastEvents(now);
 
         //todo:verificar finalizado ou inprogress
-        if(!endEvents.isEmpty()) {
+        if (!endEvents.isEmpty()) {
             endEvents.forEach(event -> event.setStatus(EventStatus.COMPLETED));
             eventRepository.saveAll(endEvents);
-            log.info("Updated {} to completed status",endEvents.size());
-        }else {
+            log.info("Updated {} to completed status", endEvents.size());
+        } else {
             log.info("No events found to update");
         }
     }

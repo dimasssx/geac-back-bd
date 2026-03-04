@@ -20,4 +20,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<Object[]> findAllWithRegistrationCount();
 
     List<Event> findAllByStartTimeBeforeAndStatusNot(LocalDateTime startTimeBefore, EventStatus status);
+
+    List<Event> findAllByStartTimeBetweenAndDaysBeforeNotify(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore, Integer daysBeforeNotify);
+
+    List<Event> findAllByStartTimeBetweenAndStatusNot(LocalDateTime startTimeAfter, LocalDateTime startTimeBefore, EventStatus status);
 }

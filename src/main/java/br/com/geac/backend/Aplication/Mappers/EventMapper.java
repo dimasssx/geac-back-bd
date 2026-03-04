@@ -55,8 +55,6 @@ public interface EventMapper {
         return tags.stream().map(Tag::getName).toList();
     }
 
-
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "organizer", ignore = true)
     @Mapping(target = "category", ignore = true)
@@ -66,6 +64,8 @@ public interface EventMapper {
     @Mapping(target = "speakers", ignore = true)
     @Mapping(target = "status", constant = "ACTIVE")
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "daysBeforeNotify", defaultValue = "ONE_DAY_BEFORE")
+
     Event toEntity(EventRequestDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -1,5 +1,6 @@
 package br.com.geac.backend.Domain.Entities;
 
+import br.com.geac.backend.Domain.Enums.DaysBeforeNotify;
 import br.com.geac.backend.Domain.Enums.EventStatus;
 import br.com.geac.backend.Domain.Enums.EventStatusConverter;
 import org.hibernate.annotations.ColumnDefault;
@@ -88,4 +89,8 @@ public class Event {
             inverseJoinColumns = @JoinColumn(name = "speaker_id")
     )
     private Set<Speaker> speakers = new HashSet<>();
+
+    //adicionar no ddl
+    public DaysBeforeNotify daysBeforeNotify;
+
 }
