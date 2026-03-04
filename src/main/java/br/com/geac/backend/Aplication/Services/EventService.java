@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -144,7 +145,7 @@ public class EventService {
             event.setOrganizer(organization);
         }
         String checkTitle = dto.title() != null ? dto.title() : event.getTitle();
-        LocalDateTime checkStartTime = dto.startTime() != null ? dto.startTime() : event.getStartTime();
+        ZonedDateTime checkStartTime = dto.startTime() != null ? dto.startTime() : event.getStartTime();
 
         if (eventRepository.existsByTitleIgnoreCaseAndOrganizerIdAndStartTime(checkTitle, event.getOrganizer().getId(), checkStartTime)) {
             if (!checkTitle.equalsIgnoreCase(event.getTitle()) || !checkStartTime.equals(event.getStartTime())) {
