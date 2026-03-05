@@ -6,7 +6,6 @@ import br.com.geac.backend.Aplication.Services.RegistrationService;
 import br.com.geac.backend.Domain.Entities.Event;
 import br.com.geac.backend.Domain.Entities.Registration;
 import br.com.geac.backend.Domain.Entities.User;
-import br.com.geac.backend.Domain.Enums.EventStatus;
 import br.com.geac.backend.Infrastructure.Repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,7 +36,7 @@ public class EventAlertScheduler {
             notifyEventsParticipants(event);
         }
 
-        log.info("Notified {} events",closeEvents.size());
+        log.info("Notified {} events", closeEvents.size());
     }
 
     private void notifyEventsParticipants(Event event) {
@@ -57,20 +56,9 @@ public class EventAlertScheduler {
         registrationService.saveAll(registrationsByEvent);
     }
 
-    @Scheduled(cron = "0 */30 * * * *")
-    public void updateEventStatus() {  //dava pra fazer direto nno banco mas deixa ai, n vai pesar acho
-
-        LocalDateTime now = LocalDateTime.now();
-        List<Event> endEvents = eventService.getPastEvents(now);
-
-        //todo:verificar finalizado ou inprogress
-        if (!endEvents.isEmpty()) {
-            endEvents.forEach(event -> event.setStatus(EventStatus.COMPLETED));
-            eventRepository.saveAll(endEvents);
-            log.info("Updated {} to completed status", endEvents.size());
-        } else {
-            log.info("No events found to update");
-        }
+    @Scheduled(cron = "0 */1 * * * *")
+    public void updateEventStatus() {
+        log.info("Total de eventos atualizados: {}", eventService.updateEventStatus(LocalDateTime.now()));
     }
 
 }
