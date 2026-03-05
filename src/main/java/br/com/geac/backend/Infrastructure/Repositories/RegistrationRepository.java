@@ -41,4 +41,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
     <T> ScopedValue<T> findByEventIdAndUserId(UUID eventId, UUID userId);
 
     Registration getByUserIdAndEventId(UUID userId, UUID eventId);
+
+    List<Registration> findByUserId(UUID userId);
 }

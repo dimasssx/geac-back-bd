@@ -107,6 +107,22 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public List<EventResponseDTO> getMyEvents() {
+        User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Registration> registrations = registrationRepository.findByUserId(loggedUser.getId());
+
+        return registrations.stream().map(reg -> {
+            Event event = reg.getEvent();
+            Integer subscribes = (int) registrationRepository.countByEventIdAndStatus(event.getId(), "CONFIRMED");
+
+            UserRegistrationContextResponseDTO context = new UserRegistrationContextResponseDTO(true, reg.getStatus(), reg.getAttended());
+
+            return eventMapper.toResponseDTO(event, context, subscribes);
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
     public EventResponseDTO getEventById(UUID id) {
         Event event = getEventByIdOrThrow(id);
         Integer subscribes = (int) registrationRepository.countByEventIdAndStatus((id), "CONFIRMED");
