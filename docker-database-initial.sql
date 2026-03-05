@@ -2500,3 +2500,40 @@ VALUES
 ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'c9999999-9999-9999-9999-999999999999'),
 ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'd1111111-1111-1111-1111-111111111111') -- 2 orgs
 ON CONFLICT (organizer_id, user_id) DO NOTHING;
+
+CREATE OR REPLACE FUNCTION notify_organizer_request_update()
+RETURNS TRIGGER AS $$
+DECLARE
+nome_org VARCHAR;
+BEGIN
+    -- se o status foi alterado e não é mais PENDING
+    IF OLD.status = 'PENDING' AND NEW.status IN ('APPROVED', 'REJECTED') THEN
+
+        -- o nome da organização para deixar a notificação mais rica
+SELECT name INTO nome_org FROM organizers WHERE id = NEW.organizer_id;
+
+-- insere a notificação automática para o usuário
+INSERT INTO notifications (user_id, type, title, message, status, created_at)
+VALUES (
+           NEW.user_id,
+           NEW.status, -- Usa o próprio status ('APPROVED' ou 'REJECTED') como tipo da notificação
+           'Atualização de Solicitação',
+           'Sua solicitação para ingressar na organização "' || nome_org || '" foi ' ||
+           CASE
+               WHEN NEW.status = 'APPROVED' THEN 'APROVADA.'
+               ELSE 'REJEITADA.'
+               END,
+           FALSE, -- status false = Notificação não lida
+           NOW()
+       );
+END IF;
+
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- cria o trigger que escuta a tabela
+CREATE TRIGGER trg_notify_org_request
+    AFTER UPDATE ON organizer_requests
+    FOR EACH ROW
+    EXECUTE FUNCTION notify_organizer_request_update();
