@@ -60,15 +60,15 @@ public class OrganizerRequestService {
                 user.setRole(Role.ORGANIZER);
                 userRepository.save(user);
             }
-
-            Notification notif = new Notification();
-            notif.setUser(user);
-            notif.setTitle("Solicitação Aprovada!");
-            notif.setMessage("Parabéns! Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' foi aceita. Você agora é um organizador. Faça login novamente para poder cadastrar eventos!");
-            notif.setType("APPROVED");
-            notif.setRead(false);
-            notif.setCreatedAt(LocalDateTime.now());
-            notificationService.notify(notif);
+            //TRIGER IMPLEMENTED
+          // Notification notif = new Notification();
+          // notif.setUser(user);
+          // notif.setTitle("Solicitação Aprovada!");
+          // notif.setMessage("Parabéns! Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' foi aceita. Você agora é um organizador. Faça login novamente para poder cadastrar eventos!");
+          // notif.setType("APPROVED");
+          // notif.setRead(false);
+          // notif.setCreatedAt(LocalDateTime.now());
+          // notificationService.notify(notif);
 
         }
     }
@@ -79,14 +79,15 @@ public class OrganizerRequestService {
         request.setStatus(RequestStatus.REJECTED);
         request.setResolvedAt(LocalDateTime.now());
         requestRepository.save(request);
-        Notification notif = new Notification();
-        notif.setUser(request.getUser());
-        notif.setTitle("Solicitação não foi aceita!");
-        notif.setMessage("Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' não foi aceita. Fale com algum professor e tente novamente");
-        notif.setType("REJECTED");
-        notif.setRead(false);
-        notif.setCreatedAt(LocalDateTime.now());
-        notificationService.notify(notif);
+        //TRIGER IMPLEMENTED
+       // Notification notif = new Notification();
+       // notif.setUser(request.getUser());
+       // notif.setTitle("Solicitação não foi aceita!");
+       // notif.setMessage("Sua solicitação para participar da organização '" + request.getOrganizer().getName() + "' não foi aceita. Fale com algum professor e tente novamente");
+       // notif.setType("REJECTED");
+       // notif.setRead(false);
+       // notif.setCreatedAt(LocalDateTime.now());
+       // notificationService.notify(notif);
     }
 
     @Transactional
