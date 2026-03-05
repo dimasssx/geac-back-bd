@@ -2449,17 +2449,21 @@ VALUES
 
 
 INSERT INTO evaluations (registration_id, rating, comment)
-SELECT id,
-       floor(random() * 5 + 1)::int, -- Garante números inteiros de 1 a 5
-        CASE floor(random() * 5 + 1)::int
-        WHEN 1 THEN 'Péssimo, organização deixou a desejar.'
-        WHEN 2 THEN 'Regular, esperava mais do conteúdo.'
-        WHEN 3 THEN 'Bom, mas pode melhorar a infraestrutura.'
-        WHEN 4 THEN 'Muito bom! Palestras bem focadas.'
-        WHEN 5 THEN 'Excelente! Melhor evento da vida.'
-END
-FROM registrations
-ON CONFLICT (registration_id) DO NOTHING;
+SELECT r.id,
+       rating,
+       CASE rating
+           WHEN 1 THEN 'Péssimo, organização deixou a desejar.'
+           WHEN 2 THEN 'Regular, esperava mais do conteúdo.'
+           WHEN 3 THEN 'Bom, mas pode melhorar a infraestrutura.'
+           WHEN 4 THEN 'Muito bom! Palestras bem focadas.'
+           WHEN 5 THEN 'Excelente! Melhor evento da vida.'
+           END
+FROM (
+         SELECT id,
+                floor(random() * 5 + 1)::int AS rating
+         FROM registrations
+     ) r
+    ON CONFLICT (registration_id) DO NOTHING;
 
 
 INSERT INTO organizer_members (user_id, organizer_id)
