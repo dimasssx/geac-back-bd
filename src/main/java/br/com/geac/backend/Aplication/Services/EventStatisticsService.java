@@ -1,5 +1,6 @@
 package br.com.geac.backend.Aplication.Services;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.EventDashBoardResponse;
 import br.com.geac.backend.Aplication.DTOs.Reponse.EventStatisticsResponseDTO;
 import br.com.geac.backend.Aplication.Mappers.EventStatisticsMapper;
 import br.com.geac.backend.Infrastructure.Repositories.EventStatisticsRepositoryView;
@@ -28,4 +29,24 @@ public class EventStatisticsService {
                 ).toList();
     }
 
+    public EventDashBoardResponse getEventDashBoard() {
+
+        var dashboard = repository.getGlobalDashboardStats();
+        if (dashboard == null || dashboard.isEmpty()) {
+            return new EventDashBoardResponse(0L, 0L, 0L, 0L, 0L, 0L, 0L,0D, 0D);
+        }
+        var stats = dashboard.getFirst();
+        return new EventDashBoardResponse(
+                        ((Number) stats[0]).longValue(),
+                        ((Number) stats[1]).longValue(),
+                        ((Number) stats[2]).longValue(),
+                        ((Number) stats[3]).longValue(),
+                        ((Number) stats[4]).longValue(),
+                        ((Number) stats[5]).longValue(),
+                        ((Number) stats[6]).longValue(),
+                        ((Number) stats[7]).doubleValue(),
+                        ((Number) stats[8]).doubleValue()
+                );
+
+    }
 }
