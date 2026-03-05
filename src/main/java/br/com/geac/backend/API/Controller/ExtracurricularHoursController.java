@@ -1,5 +1,6 @@
 package br.com.geac.backend.API.Controller;
 
+import br.com.geac.backend.Aplication.DTOs.Reponse.ExtracurricularAverageResponse;
 import br.com.geac.backend.Aplication.DTOs.Request.StudentHoursResponseDTO;
 import br.com.geac.backend.Aplication.Services.ExtracurricularHoursService;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,11 @@ public class ExtracurricularHoursController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<StudentHoursResponseDTO>> getAllStudentHours() {
         return ResponseEntity.ok(service.getAllStudentHours());
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ExtracurricularAverageResponse> getStatistics(){
+        return ResponseEntity.ok(service.getStatistics());
     }
 }

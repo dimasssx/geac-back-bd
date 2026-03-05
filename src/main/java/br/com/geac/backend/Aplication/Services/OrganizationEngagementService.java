@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,9 +17,14 @@ public class OrganizationEngagementService {
     private final OrganizationEngagementMapper mapper;
 
     public List<OrganizationEngagementResponseDTO> getAllOrganizationEngagement() {
-        return repository.findAll()
+        return repository.findTopOrganizations()
                 .stream()
-                .map(mapper::toResponseDTO)
+                .map(row -> new OrganizationEngagementResponseDTO(
+                        ((UUID) row[0]),
+                        (String) row[1],
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue()
+                ))
                 .toList();
     }
 }
