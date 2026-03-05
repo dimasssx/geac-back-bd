@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
-
+//todo: ajeitar essa bagunça
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         //eventos: qualquer autenticado passa pela rota. a validação se e membro da Org ou Admin será feita no Service.
                         .requestMatchers(HttpMethod.GET, "/events/**").authenticated()
@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/organizers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/organizers/*/members").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/organizers/*/members/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/admin/users","/admin/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/admin/users","/admin/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/admin/users","/admin/users/**").hasRole("ADMIN")
                         //solicitações: exclusiva de professor/organizer/admin
                         .requestMatchers(HttpMethod.PUT, "/registrations/*/attendance/bulk").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/registrations/event/*").hasAnyRole("PROFESSOR", "ORGANIZER", "ADMIN")
