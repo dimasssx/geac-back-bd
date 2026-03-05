@@ -40,6 +40,13 @@ public class EventController {
         List<EventResponseDTO> events = eventService.getOrganizerEvents(authenticatedUser);
         return ResponseEntity.ok(events);
     }
+
+    @GetMapping("/my-events")
+    public ResponseEntity<List<EventResponseDTO>> getMyEvents() {
+        List<EventResponseDTO> events = eventService.getMyEvents();
+        return ResponseEntity.ok(events);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDTO> getEventById(@PathVariable UUID id) {
         EventResponseDTO event = eventService.getEventById(id);
