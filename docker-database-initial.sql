@@ -846,8 +846,8 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
 
        ('f1111111-d628-46ef-b838-b66d4758b966', 'a7777777-7777-7777-7777-777777777777', 2, 8,
         'Hackathon de Inovação 2025',
-        'Evento de 24 horas para desenvolvimento de soluções inovadoras em equipe...',
-        NULL, '2025-11-15 18:00:00.000000', '2025-11-16 18:00:00.000000', 24, 100,
+        'Evento de 6 horas para desenvolvimento de soluções inovadoras em equipe...',
+        NULL, '2025-11-15 18:00:00.000000', '2025-11-16 18:00:00.000000', 6, 100,
         'COMPLETED', NOW()),
 
        ('f2222222-d628-46ef-b838-b66d4758b966', 'a8888888-8888-8888-8888-888888888888', 7, 3,
@@ -871,7 +871,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('f5555555-d628-46ef-b838-b66d4758b966', 'b2222222-2222-2222-2222-222222222222', 4, 14,
         'Exposição de Arte Digital Contemporânea',
         'Mostra de trabalhos digitais de estudantes e artistas convidados...',
-        NULL, '2026-03-20 10:00:00.000000', '2026-03-22 20:00:00.000000', 30, 300,
+        NULL, '2026-03-20 10:00:00.000000', '2026-03-22 20:00:00.000000', 6, 300,
         'ACTIVE', NOW()),
 
        ('f6666666-d628-46ef-b838-b66d4758b966', 'b3333333-3333-3333-3333-333333333333', 3, 26,
@@ -955,7 +955,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('21111111-d628-46ef-b838-b66d4758b966', 'c7777777-7777-7777-7777-777777777777', 2, 10,
         'Desenvolvimento Full Stack com React e Node',
         'Bootcamp intensivo de desenvolvimento web moderno...',
-        'https://example.com/fullstack-bootcamp', '2026-04-20 09:00:00.000000', '2026-04-24 18:00:00.000000', 40, 30,
+        'https://example.com/fullstack-bootcamp', '2026-04-20 09:00:00.000000', '2026-04-24 18:00:00.000000', 4, 30,
         'ACTIVE', NOW()),
 
        ('22222222-d628-46ef-b838-b66d4758b966', 'c8888888-8888-8888-8888-888888888888', 5, 42,
@@ -967,7 +967,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('23333333-d628-46ef-b838-b66d4758b966', 'c9999999-9999-9999-9999-999999999999', 2, 16,
         'Big Data e Analytics com Python',
         'Curso prático sobre análise de grandes volumes de dados...',
-        'https://example.com/bigdata-python', '2025-06-05 13:00:00.000000', '2025-06-07 18:00:00.000000', 15, 50,
+        'https://example.com/bigdata-python', '2025-06-05 13:00:00.000000', '2025-06-07 18:00:00.000000', 5, 50,
         'COMPLETED', NOW()),
 
        ('24444444-d628-46ef-b838-b66d4758b966', 'd1111111-1111-1111-1111-111111111111', 4, 22,
@@ -991,7 +991,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('27777777-d628-46ef-b838-b66d4758b966', 'd4444444-4444-4444-4444-444444444444', 2, 25,
         'Flutter: Desenvolvimento Mobile Multiplataforma',
         'Curso sobre criação de apps iOS e Android com Flutter...',
-        'https://example.com/flutter-mobile', '2025-05-10 10:00:00.000000', '2025-05-12 17:00:00.000000', 21, 35,
+        'https://example.com/flutter-mobile', '2025-05-10 10:00:00.000000', '2025-05-12 17:00:00.000000', 2, 35,
         'COMPLETED', NOW()),
 
        ('28888888-d628-46ef-b838-b66d4758b966', 'd5555555-5555-5555-5555-555555555555', 5, 27,
@@ -1057,7 +1057,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('39999999-d628-46ef-b838-b66d4758b966', 'e6666666-6666-6666-6666-666666666666', 4, 37,
         'Jornalismo de Dados e Visualização',
         'Curso sobre storytelling com dados e ferramentas de visualização...',
-        'https://example.com/jornalismo-dados', '2026-04-22 09:00:00.000000', '2026-04-23 17:00:00.000000', 16, 40,
+        'https://example.com/jornalismo-dados', '2026-04-22 09:00:00.000000', '2026-04-23 17:00:00.000000', 6, 40,
         'ACTIVE', NOW()),
 
        ('41111111-d628-46ef-b838-b66d4758b966', 'e7777777-7777-7777-7777-777777777777', 2, 38,
@@ -1075,7 +1075,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('43333333-d628-46ef-b838-b66d4758b966', 'e9999999-9999-9999-9999-999999999999', 2, 40,
         'TensorFlow e Redes Neurais',
         'Curso avançado sobre deep learning com TensorFlow 2.0...',
-        'https://example.com/tensorflow-nn', '2025-02-10 09:00:00.000000', '2025-02-14 18:00:00.000000', 40, 35,
+        'https://example.com/tensorflow-nn', '2025-02-10 09:00:00.000000', '2025-02-14 18:00:00.000000', 4, 35,
         'COMPLETED', NOW()),
 
        ('44444444-d628-46ef-b838-b66d4758b966', 'f1111111-1111-1111-1111-111111111111', 5, 41,
@@ -1085,9 +1085,9 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
         'ACTIVE', NOW()),
 
        ('45555555-d628-46ef-b838-b66d4758b966', 'f2222222-2222-2222-2222-222222222222', 4, 43,
-        'Game Jam 48h - Desenvolvimento de Jogos',
+        'Game Jam 12h - Desenvolvimento de Jogos',
         'Competição de criação de jogos em 48 horas...',
-        'https://example.com/game-jam', '2026-04-26 18:00:00.000000', '2026-04-28 18:00:00.000000', 48, 60,
+        'https://example.com/game-jam', '2026-04-26 18:00:00.000000', '2026-04-28 18:00:00.000000', 12, 60,
         'ACTIVE', NOW()),
 
        ('46666666-d628-46ef-b838-b66d4758b966', 'f3333333-3333-3333-3333-333333333333', 3, 44,
@@ -1099,7 +1099,7 @@ VALUES ('e153c21a-d628-46ef-b838-b66d4758b966', 'a1111111-1111-1111-1111-1111111
        ('47777777-d628-46ef-b838-b66d4758b966', 'f4444444-4444-4444-4444-444444444444', 2, 45,
         'Apache Spark e Processamento Distribuído',
         'Curso sobre processamento de big data em larga escala...',
-        'https://example.com/apache-spark', '2025-01-15 09:00:00.000000', '2025-01-17 17:00:00.000000', 24, 40,
+        'https://example.com/apache-spark', '2025-01-15 09:00:00.000000', '2025-01-17 17:00:00.000000', 3, 40,
         'COMPLETED', NOW()),
 
        ('48888888-d628-46ef-b838-b66d4758b966', 'f5555555-5555-5555-5555-555555555555', 5, 46,

@@ -11,16 +11,20 @@ import java.util.UUID;
 @Repository
 public interface StudentExtracurricularHoursRepository extends JpaRepository<StudentExtracurricularHours, UUID> {
     @Query(value = """
-    SELECT * FROM vw_horas_extracurriculares_aluno 
-    ORDER BY total_horas_acumuladas DESC 
-    """, nativeQuery = true)
+            SELECT * FROM vw_horas_extracurriculares_aluno 
+            ORDER BY total_horas_acumuladas DESC 
+            """, nativeQuery = true)
     List<Object[]> findTopStudentsByHours();
+
     @Query(value = """
-    SELECT 
-        (SELECT COUNT(*) FROM users WHERE user_type = 'STUDENT') AS totalAlunos,
-        (SELECT COUNT(*) FROM certificates) AS totalCertificados,
-        (SELECT COALESCE(SUM(workload_hours), 0) FROM events e JOIN certificates c ON e.id = c.event_id) AS horasTotais,
-        (SELECT ROUND(AVG(total_horas_acumuladas), 2) FROM vw_horas_extracurriculares_aluno) AS studentAverage
-    """, nativeQuery = true)
+        SELECT
+            (SELECT COUNT(*) FROM users WHERE user_type = 'STUDENT') AS totalAlunos,
+            (SELECT COALESCE(SUM(total_certificados_emitidos), 0)
+             FROM vw_horas_extracurriculares_aluno)                   AS totalCertificados,
+            (SELECT COALESCE(SUM(total_horas_acumuladas), 0)
+             FROM vw_horas_extracurriculares_aluno)                   AS horasTotais,
+            (SELECT ROUND(AVG(total_horas_acumuladas), 2)
+             FROM vw_horas_extracurriculares_aluno)                   AS studentAverage
+        """, nativeQuery = true)
     List<Object[]> getGlobalMetrics();
 }
